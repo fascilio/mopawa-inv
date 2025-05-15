@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const productRoutes = require('./routes/productRoutes');
+const dealerRoutes = require('./routes/dealerRoutes');
+const retailerRoutes = require('./routes/retailerRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
 
 const app = express();
 
@@ -15,6 +18,8 @@ mongoose.connect('mongodb://localhost:27017/inventoryDB', {
   .catch(err => console.log(err));
 
 app.use('/api/products', productRoutes);
-
+app.use('/api/dealers', dealerRoutes);
+app.use('/api/retailers', retailerRoutes);
+app.use('/api/invoice', invoiceRoutes);
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

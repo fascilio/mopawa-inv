@@ -1,0 +1,111 @@
+/* RetailerStock.css */
+
+.retailer-container {
+    padding: 1.5rem;
+  }
+  
+  .retailer-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .retailer-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    background-color: #10b981;
+    color: white;
+    margin-bottom: 1rem;
+    transition: background-color 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .retailer-button:hover {
+    background-color: #059669;
+  }
+  
+  .add-retailer-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .add-retailer-input {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    width: 16rem;
+  }
+  
+  .save-button {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .save-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .retailer-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .retailer-item {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    background-color: #e5e7eb;
+    cursor: pointer;
+  }
+  
+  .retailer-item:hover {
+    background-color: #d1d5db;
+  }
+  
+  .retailer-item.selected {
+    background-color: #2563eb;
+    color: white;
+    border-color: #2563eb;
+  }
+  
+  .assign-section {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .assign-input {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+  }
+  
+  .assign-button {
+    background-color: #7c3aed;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .assign-button:hover {
+    background-color: #6d28d9;
+  }
+  
+  .stock-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  

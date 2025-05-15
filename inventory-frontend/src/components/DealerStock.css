@@ -1,0 +1,131 @@
+.dealer-container {
+    padding: 2rem;
+    max-width: 900px;
+    margin: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9fafb;
+  }
+  
+  .dealer-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #111827;
+  }
+  
+  .add-dealer-toggle {
+    background-color: #059669;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .add-dealer-toggle:hover {
+    background-color: #047857;
+  }
+  
+  .add-dealer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+  }  
+  
+  .add-dealer-input {
+    padding: 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    flex: 1;
+  }
+  
+  .add-dealer-save {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .add-dealer-save:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .dealer-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    /* flex-direction: column; */
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .dealer-button {
+    background-color: #facc15;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease;
+  }
+  .dealer-button:hover {
+    background-color: #eab308;
+  }
+  .dealer-button.active {
+    background-color: #d97706;
+    color: white;
+  }
+  
+  .assign-section {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .assign-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #111827;
+  }
+  
+  .assign-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .assign-input {
+    padding: 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    flex: 1;
+  }
+  
+  .assign-button {
+    background-color: #9333ea;
+    color: white;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .assign-button:hover {
+    background-color: #7e22ce;
+  }
+  
+  .stock-list {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    color: #374151;
+  }
+  

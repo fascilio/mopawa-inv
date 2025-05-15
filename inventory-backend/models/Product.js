@@ -16,7 +16,30 @@ const productSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Dealer',
     default: null,
-  }
+  },
+  assigned: {
+    type: Boolean,
+    default: false,
+  },
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    refPath: 'assignedType', 
+  },
+  assignedType: {
+    type: String,
+    enum: ['Dealer', 'Retailer'],
+  },
+  assignment: {
+    type: {
+      type: String, 
+    },
+    id: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: 'assignment.type',
+    },
+    date: Date,
+  },
+  
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);
