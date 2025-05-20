@@ -21,6 +21,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  wasUderMaintenance: {
+    type: Boolean,
+    default: false
+  },
   assignedTo: {
     type: mongoose.Schema.Types.ObjectId,
     refPath: 'assignedType', 
@@ -39,6 +43,7 @@ const productSchema = new mongoose.Schema({
     },
     date: Date,
   },
+  // maintenanceHistory: { type: Boolean, default: false },
   
 }, { timestamps: true });
 

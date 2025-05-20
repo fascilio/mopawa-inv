@@ -1,20 +1,44 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './RetailerStock.css';
+import { Link } from 'react-router-dom';
+//import WarantyPolicy from '../Warranty/Warranty';
 
 function RetailerStock() {
   const [retailers, setRetailers] = useState([]);
-  const [selectedRetailer, setSelectedRetailer] = useState('');
+  const [selectedRetailer, setSelectedRetailer] = useState(null);
   const [retailProducts, setRetailProducts] = useState([]);
   const [barcode, setBarcode] = useState('');
   const [showAddRetailer, setShowAddRetailer] = useState(false);
   const [newRetailerName, setNewRetailerName] = useState('');
+  const [readyProducts, setReadyProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const navigate = useNavigate();
+const [isTeamLeader, setIsTeamLeader] = useState(false);
+const [teamLeaderId, setTeamLeaderId] = useState('');
+
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/retailers')
       .then(res => setRetailers(res.data))
       .catch(err => console.error(err));
-  }, []);
+   }, []);
+
+ useEffect(() => {
+  if (selectedRetailer && selectedRetailer.isTeamLeader) {
+    axios.get(`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`)
+      .then(response => {
+        setRetailers(response.data);
+      })
+      .catch(err => {
+        console.error('Failed to fetch team members:', err);
+        setRetailers([]); 
+      });
+  } else {
+    setRetailers([]); 
+  }
+}, [selectedRetailer]);
 
   const fetchRetailStock = (retailerId) => {
     if (!retailerId) return;
@@ -23,38 +47,89 @@ function RetailerStock() {
       .catch(err => console.error(err));
   };
 
-  const handleRetailerClick = (retailerId) => {
-    setSelectedRetailer(retailerId);
-    fetchRetailStock(retailerId);
+  const handleSelectRetailer = (id) => {
+    const retailer = retailers.find(r => r._id === id);
+    setSelectedRetailer(retailer);
+    fetchRetailStock(id);  
   };
 
-  const assignProduct = () => {
-    if (!barcode || !selectedRetailer) return;
-    axios.post('http://localhost:5000/api/products/assign', {
-      barcode,
-      destinationType: 'Retailer',
-      destinationId: selectedRetailer
-    }).then(() => {
-      fetchRetailStock(selectedRetailer);
-      setBarcode('');
-    }).catch(err => {
-      console.error(err);
-      alert('Assignment failed');
-    });
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/products/good')
+      .then(res => {
+        const unassigned = res.data.filter(p => !p.assigned);
+        setReadyProducts(unassigned);
+      });
+  }, []);
+
+  const handleProductToggle = (barcode) => {
+    if (selectedProducts.includes(barcode)) {
+      setSelectedProducts(selectedProducts.filter(b => b !== barcode));
+    } else {
+      setSelectedProducts([...selectedProducts, barcode]);
+    }
   };
+
+  const assignBulkProducts = async () => {
+    if (!selectedRetailer || selectedProducts.length === 0) return;
+  
+    try {
+      const res = await axios.post('http://localhost:5000/api/products/assign-bulk', {
+        barcodes: selectedProducts,
+        destinationType: 'Retailer',
+        destinationId: selectedRetailer,
+      });
+  
+      const { invoiceId } = res.data;
+      navigate(`/invoice/${invoiceId}`);
+  
+      setSelectedProducts([]);
+      fetchRetailStock(selectedRetailer);
+    } catch (err) {
+      console.error(err);
+      alert('Bulk assignment failed');
+    }
+  };
+
+  const handleDeleteRetailer = async (retailerId) => {
+    if (!window.confirm('Are you sure you want to delete this retailer?')) return;
+  
+    try {
+      await axios.delete(`http://localhost:5000/api/retailers/${retailerId}`);
+      // Refresh the list after deletion
+      const refreshed = await axios.get(`http://localhost:5000/api/retailers`);
+      setRetailers(refreshed.data);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete retailer');
+    }
+  };  
 
   return (
     <div className="retailer-container">
-      <h2 className="retailer-title">Assign Products to Retailer/Sales Agent</h2>
-
-      <button
-        onClick={() => setShowAddRetailer(!showAddRetailer)}
-        className="retailer-button"
+      {/* <h2 className="retailer-title">Assign Products to Retailer/Sales Agent</h2> */}
+      <h2
+        className="retailer-title"
+        style={{ cursor: 'pointer' }}
+        onClick={() => {
+          setSelectedRetailer('');
+          setRetailProducts([]);
+          setSelectedProducts([]);
+          setShowAddRetailer(false);
+        }}
       >
-        {showAddRetailer ? 'Cancel' : 'Add Retailer'}
-      </button>
+        Retailers/Sales Agent
+      </h2>
 
-      {showAddRetailer && (
+      {!selectedRetailer && (
+        <button
+          onClick={() => setShowAddRetailer(!showAddRetailer)}
+          className="retailer-button"
+        >
+          {showAddRetailer ? 'Cancel' : 'Add Retailer'}
+        </button>
+      )}
+
+      {!selectedRetailer && showAddRetailer && (
         <div className="add-retailer-form">
           <input
             type="text"
@@ -63,13 +138,47 @@ function RetailerStock() {
             placeholder="Retailer name"
             className="add-retailer-input"
           />
+
+          <div>
+            <input
+              type="checkbox"
+              checked={isTeamLeader}
+              onChange={e => setIsTeamLeader(e.target.checked)}
+            />
+            <label>Is Team Leader</label>
+          </div>
+
+          {!isTeamLeader && (
+            <div>
+              <label>Select Team Leader</label>
+              <select
+                value={teamLeaderId}
+                onChange={e => setTeamLeaderId(e.target.value)}
+                required
+              >
+                <option value="">-- Select Team Leader --</option>
+                {retailers
+                  .filter(r => r.isTeamLeader)
+                  .map(r => (
+                    <option key={r._id} value={r._id}>
+                      {r.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
+
           <button
             onClick={async () => {
               try {
                 const res = await axios.post('http://localhost:5000/api/retailers/create', {
                   name: newRetailerName,
+                  isTeamLeader,
+                  teamLeaderId: isTeamLeader ? null : teamLeaderId
                 });
                 setNewRetailerName('');
+                setIsTeamLeader(false);
+                setTeamLeaderId('');
                 setShowAddRetailer(false);
                 setRetailers([...retailers, res.data]);
               } catch (err) {
@@ -84,34 +193,43 @@ function RetailerStock() {
         </div>
       )}
 
-      <div className="retailer-list">
-        {retailers.map((r) => (
-          <button
-            key={r._id}
-            onClick={() => handleRetailerClick(r._id)}
-            className={`retailer-item ${selectedRetailer === r._id ? 'selected' : ''}`}
-          >
-            {r.name}
-          </button>
-        ))}
-      </div>
+      {!selectedRetailer && (
+        <div className="retailer-list">
+          {retailers
+            .filter(r => r.isTeamLeader)
+            .map((r) => (
+              <button onClick={() => handleSelectRetailer(r._id)}>{r.name}</button>
+          ))}
+        </div>
+      )}
 
       {selectedRetailer && (
         <>
           <div className="assign-section">
-            <input
+          <h3 className="assign-title">Assign Product to {selectedRetailer.name}</h3>
+            {/* <input
               type="text"
               placeholder="Enter barcode"
               value={barcode}
               onChange={(e) => setBarcode(e.target.value)}
               className="assign-input"
-            />
-            <button
-              onClick={assignProduct}
-              className="assign-button"
-            >
-              Assign to Retailer
-            </button>
+            /> */}
+            <div className="assign-input-group">
+            <h3>Select Products to Assign:</h3>
+              <ul className="assign-list">
+                {readyProducts.map(p => (
+                  <li key={p._id}>
+                    <input
+                      type="checkbox"
+                      checked={selectedProducts.includes(p.barcode)}
+                      onChange={() => handleProductToggle(p.barcode)}
+                    />
+                    {p.barcode}
+                  </li>
+                ))}
+              </ul> <br/>
+              <button onClick={assignBulkProducts} className="assign-button">Confirm</button>
+          </div>
           </div>
 
           <h3 className="stock-title">Retailer Stock</h3>
@@ -123,6 +241,102 @@ function RetailerStock() {
                 <li key={p._id}>{p.barcode}</li>
               ))}
             </ul>
+          )}
+          <div className="warranty-section">
+            {/* <h3>Warranty Actions for {retailers.find(r => r._id === selectedRetailer)?.name}</h3> */}
+            <h3>Warranty Actions for {selectedRetailer.name}</h3>
+
+            <div className="warranty-action">
+            <Link to='/warranty-policy'>view warranty policy</Link>
+              <input
+                type="text"
+                placeholder="Enter product barcode"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+              />
+              {/* <a href="/warranty-policy" className="warranty-policy-link">📄 View Warranty Policy</a> */}
+              <button
+                onClick={async () => {
+                  try {
+                    await axios.post('http://localhost:5000/api/warranty/register', {
+                      barcode,
+                      registeredBy: 'Retailer',
+                      retailerId: selectedRetailer
+                    });
+                    alert('Warranty registered successfully!');
+                    setBarcode('');
+                  } catch (err) {
+                    console.error(err);
+                    alert('Warranty registration failed.');
+                  }
+                }}
+              >
+                Register Warranty
+              </button>
+
+              <button
+                onClick={async () => {
+                  try {
+                    await axios.post('http://localhost:5000/api/warranty/claim', {
+                      barcode,
+                      claimedBy: 'Retailer',
+                      retailerId: selectedRetailer
+                    });
+                    alert('Warranty claim submitted!');
+                    setBarcode('');
+                  } catch (err) {
+                    console.error(err);
+                    alert('Warranty claim failed.');
+                  }
+                }}
+              >
+                Claim Warranty
+              </button>
+            </div>
+          </div>
+          {selectedRetailer?.isTeamLeader && (
+            <div className="team-section">
+              <h3>Create Team for {selectedRetailer.name}</h3>
+              <input
+                type="text"
+                placeholder="Sub-retailer name"
+                value={newRetailerName}
+                onChange={(e) => setNewRetailerName(e.target.value)}
+                className="add-retailer-input"
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await axios.post(
+                      `http://localhost:5000/api/retailers/${selectedRetailer._id}/team-member`,
+                      { name: newRetailerName }
+                    );
+                    setNewRetailerName('');
+                    const refreshed = await axios.get(
+                      `http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`
+                    );
+                    setRetailers(refreshed.data);
+                  } catch (err) {
+                    console.error(err);
+                    alert('Failed to add sub-retailer');
+                  }
+                }}
+                className="save-button"
+              >
+                Add Sub-Retailer
+              </button>
+              {selectedRetailer.isTeamLeader && (
+                <div className="team-members">
+                  <h2>Team Members of {selectedRetailer.name}</h2>
+                  <ul>
+                  {retailers.map(member => (
+                    <li key={member._id}>{member.name}</li>
+                  ))}
+                  </ul>
+                </div>
+              )}
+
+            </div>
           )}
         </>
       )}

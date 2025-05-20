@@ -21,6 +21,7 @@ function AssignedProducts() {
             <th>Barcode</th>
             <th>Assigned To</th>
             <th>Type</th>
+            <th>Date</th>
           </tr>
         </thead>
       </table>
@@ -33,6 +34,7 @@ function AssignedProducts() {
                 <td>{p.barcode}</td>
                 <td>{p.assignedTo?.name || 'Unknown'}</td>
                 <td>{p.assignedType}</td>
+                <td>{new Date(p.createdAt).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>

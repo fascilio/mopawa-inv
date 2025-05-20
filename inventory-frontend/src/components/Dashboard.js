@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css'; 
-import { Link, Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function Dashboard() {
   const [counts, setCounts] = useState({
@@ -43,14 +43,12 @@ function Dashboard() {
       <h2 className="dashboard-title">📊 Warehouse Management</h2>
       <div className="dashboard-grid">
         <div className="dashboard-box"><Link to="/scanner">Import Warehouse: {counts.testing}</Link></div>
-        <div className="dashboard-box"><Link to="/testing">Spare Parts Warehouse: {counts.maintenance}</Link></div>
-        <div className="dashboard-box"><Link>Finished Warehouse: {counts.good}</Link></div>
-        <div className="dashboard-box">With Dealers: {counts.dealer}</div>
-        <div className="dashboard-box">With Retailers: {counts.retailer}</div>
+        <div className="dashboard-box"><Link to="/maintenance">Spare Parts Warehouse: {counts.maintenance}</Link></div>
+        <div className="dashboard-box"><Link to="/ready">Finished Warehouse: {counts.good}</Link></div>
+        <div className="dashboard-box"><Link to="/dealer-stock">Dealers Warehouse: {counts.dealer}</Link></div>
+        <div className="dashboard-box"><Link to="/retailer-stock">Direct Sales warehouse: {counts.retailer}</Link></div>
       </div>
-      <ul>
-        <li></li>
-      </ul>
+      
     </div>
   );
 }

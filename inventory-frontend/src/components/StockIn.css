@@ -1,0 +1,5 @@
+.table-scroll-container {
+    max-height: 400px; 
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}

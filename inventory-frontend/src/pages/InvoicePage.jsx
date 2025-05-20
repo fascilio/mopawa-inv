@@ -67,6 +67,9 @@ function InvoicePage() {
             <thead>
               <tr>
                 <th>#</th>
+                 {/* <th>Description</th>
+                <th>Unit Price</th>
+               <th>Quantity</th> */}
                 <th>Barcode</th>
                 <th>Status</th>
               </tr>
@@ -75,6 +78,9 @@ function InvoicePage() {
               {invoice.products.map((p, i) => (
                 <tr key={p._id}>
                   <td>{i + 1}</td>
+                  {/* <td>{p.description}</td>
+                  <td>{p.unitPrice}</td>
+                  <td>{p.quantity}</td> */}
                   <td>{p.barcode}</td>
                   <td>{p.status}</td>
                 </tr>

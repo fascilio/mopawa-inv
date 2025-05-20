@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
-import './TestingQueue.css'; 
+//import './TestingQueue.css'; 
 
 function TestingQueue({ reloadTrigger }) {
   const [pendingProducts, setPendingProducts] = useState([]);
@@ -8,7 +8,7 @@ function TestingQueue({ reloadTrigger }) {
   useEffect(() => {
     const fetchPending = async () => {
       const res = await api.get('/products/pending');
-      setPendingProducts(res.data);
+      setPendingProducts(res.data.reverse());
     };
 
     fetchPending();
@@ -21,7 +21,7 @@ function TestingQueue({ reloadTrigger }) {
 
   return (
     <div className="testing-container">
-      <h3 className="testing-title">Products Pending Testing</h3>
+      <h3 className="testing-title">Testing Warehouse</h3>
       <ul className="testing-list">
         {pendingProducts.map((product) => (
           <li key={product._id} className="testing-item">

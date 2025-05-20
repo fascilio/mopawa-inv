@@ -4,6 +4,7 @@ const Product = require('../models/Product');
 const Invoice = require('../models/Invoice');
 
 router.post('/receive', async (req, res) => {
+  console.log('Received barcode:', req.body);
   const { barcode } = req.body;
 
   try {
@@ -22,6 +23,24 @@ router.post('/receive', async (req, res) => {
   }
 });
 
+// DELETE /api/products/delete-by-barcode/:barcode
+router.delete('/delete-by-barcode/:barcode', async (req, res) => {
+  const { barcode } = req.params;
+
+  try {
+    const deleted = await Product.findOneAndDelete({ barcode });
+
+    if (!deleted) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json({ message: 'Product deleted successfully', deleted });
+  } catch (err) {
+    console.error('Error deleting product by barcode:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get pending products
 router.get('/pending', async (req, res) => {
   try {
@@ -29,6 +48,38 @@ router.get('/pending', async (req, res) => {
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: 'Error fetching pending products' });
+  }
+});
+
+// GET /api/products/all
+router.get('/all', async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+
+    const detailed = products.map(product => ({
+      _id: product._id,
+      barcode: product.barcode,
+      assignedTo: product.assignedTo || null,
+      assignedType: product.assignedType || null,
+      assignmentDate: product.createdAt,
+      receivedAt: product.receivedAt || null, 
+      testedStatus: ['good', 'bad'].includes(product.status) ? product.status : null
+    }));
+
+    res.json(detailed);
+  } catch (err) {
+    console.error('Error fetching all products:', err);
+    res.status(500).json({ error: 'Failed to fetch all products' });
+  }
+});
+
+router.get('/tested', async (req, res) => {
+  try {
+    const tested = await Product.find({ status:  {$in: ['good', 'bad'] } });
+    res.json(tested);
+  }catch (err) {
+    console.error(err);
+    res.status(500).json({message: 'Failed to fetch tested products'});
   }
 });
 
@@ -103,8 +154,9 @@ router.post('/assign', async (req, res) => {
 });
 
 router.post('/assign-bulk', async (req, res) => {
+  
   const { barcodes, destinationType, destinationId } = req.body;
-
+  console.log('assigned:', req.body)
   if (!barcodes || !Array.isArray(barcodes) || !destinationType || !destinationId) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -136,6 +188,7 @@ router.post('/assign-bulk', async (req, res) => {
       products: assignedProducts,
       totalItems: assignedProducts.length
     });
+
     await invoice.save();
 
     res.json({ message: 'Assigned successfully', invoiceId: invoice._id });
@@ -168,22 +221,6 @@ router.get('/good', async (req, res) => {
     const products = await Product.find({ status: 'bad' });
     res.json(products);
   });
-  
-  router.post('/', async (req, res) => {
-    const { barcode, status } = req.body;
-  
-    try {
-      const exists = await Product.findOne({ barcode });
-      if (exists) return res.status(400).json({ message: 'Product already exists' });
-  
-      const product = new Product({ barcode, status });
-      await product.save();
-      res.status(201).json(product);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  });
-  
 
   router.put('/status/:barcode', async (req, res) => {
     const { barcode } = req.params;
@@ -200,25 +237,29 @@ router.get('/good', async (req, res) => {
       res.status(500).json({ message: err.message });
     }
   });
-  
-  // PUT /api/products/:id/mark-good
+
 router.put('/:id/mark-good', async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { status: 'good' },
+      {
+        status: 'good',
+        wasUnderMaintenance: true, 
+        assigned: false 
+      },
       { new: true }
     );
+
     if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found' });
     }
+
     res.json(updatedProduct);
   } catch (err) {
     console.error('Error updating product status:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 // routes or controller file
 router.get('/testing-count', async (req, res) => {
@@ -228,6 +269,36 @@ router.get('/testing-count', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error fetching testing count' });
+  }
+});
+
+// GET /api/products/maintenance-out
+router.get('/maintenance-out', async (req, res) => {
+  try {
+    const repaired = await Product.find({ wasUnderMaintenance: true, status: 'good' });
+    res.json(repaired);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch repaired products' });
+  }
+});
+
+// GET all products that have ever been in maintenance
+router.get('/maintenance-count', async (req, res) => {
+  try {
+    const total = await Product.countDocuments({ status: 'bad' });
+    res.json({ total });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching maintenance count' });
+  }
+});
+
+// Count: Ready for market (Good)
+router.get('/good-count', async (req, res) => {
+  try {
+    const total = await Product.countDocuments({ status: 'good', assigned: false });
+    res.json({ total });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching good product count' });
   }
 });
  

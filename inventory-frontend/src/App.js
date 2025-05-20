@@ -28,6 +28,7 @@ import GiftStock from './components/GiftStock';
 import Dashboard from './components/Dashboard';
 import AssignedProducts from './pages/AssignedProducts'
 import InvoiceViewer from './pages/InvoiceViewer';
+import WarrantyPolicy from './Warranty/Warranty';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="retailer-stock" element={<RetailerStock />} />
         <Route path="sample-stock" element={<SampleStock />} />
         <Route path="gift-stock" element={<GiftStock />} />
+        <Route path="warranty-policy" element={<WarrantyPolicy />} />
       </Route>
     </Routes>
   </Router>

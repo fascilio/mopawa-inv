@@ -7,12 +7,48 @@ function DealerStock() {
   const [dealers, setDealers] = useState([]);
   const [selectedDealer, setSelectedDealer] = useState(null);
   const [dealerProducts, setDealerProducts] = useState([]);
-  const [barcode, setBarcode] = useState('');
-  const [showAddDealer, setShowAddDealer] = useState(false);
-  const [newDealerName, setNewDealerName] = useState('');
-  const [readyProducts, setReadyProducts] = useState([]);
+  const [assignableProducts, setAssignableProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [newDealerName, setNewDealerName] = useState('');
+  const [showAddSubDealer, setShowAddSubDealer] = useState(false);
+  const [showAddDealer, setShowAddDealer] = useState(false);
   const navigate = useNavigate();
+  const [editingDealerId, setEditingDealerId] = useState(null);
+const [editedName, setEditedName] = useState('');
+
+const handleEditDealer = (dealer) => {
+  setEditingDealerId(dealer._id);
+  setEditedName(dealer.name);
+};
+
+const handleSaveEdit = async () => {
+  try {
+    const res = await axios.put(`http://localhost:5000/api/dealers/${editingDealerId}`, {
+      name: editedName
+    });
+    setDealers(dealers.map(d => d._id === editingDealerId ? res.data : d));
+    setEditingDealerId(null);
+    setEditedName('');
+  } catch (err) {
+    console.error(err);
+    alert('Failed to update dealer');
+  }
+};
+
+const handleDeleteDealer = async (id) => {
+  if (!window.confirm('Are you sure you want to delete this dealer?')) return;
+  try {
+    await axios.delete(`http://localhost:5000/api/dealers/${id}`);
+    setDealers(dealers.filter(d => d._id !== id));
+    if (selectedDealer && selectedDealer._id === id) {
+      setSelectedDealer(null);
+      setDealerProducts([]);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to delete dealer');
+  }
+};
 
 
   useEffect(() => {
@@ -21,34 +57,42 @@ function DealerStock() {
       .catch(err => console.error(err));
   }, []);
 
+  const [subDealers, setSubDealers] = useState([]);
+
   const loadDealerStock = async (dealer) => {
-    setSelectedDealer(dealer);
-    setBarcode('');
-    try {
-      const res = await axios.get(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
-      setDealerProducts(res.data);
-    } catch (err) {
-      console.error(err);
-      alert('Failed to load dealer stock');
-    }
-  };
-  
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/products/good')
-      .then(res => {
-        const unassigned = res.data.filter(p => !p.assigned);
-        setReadyProducts(unassigned);
-      });
-  }, []);
+  setSelectedDealer(dealer);
+  setShowAddSubDealer(false);
+  setSelectedProducts([]);
 
-  const handleProductToggle = (barcode) => {
-    if (selectedProducts.includes(barcode)) {
-      setSelectedProducts(selectedProducts.filter(b => b !== barcode));
+  try {
+    if (dealer.parentDealer) {
+      const subStockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
+      setDealerProducts(subStockRes.data);
+
+      const parentStock = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/stock`);
+      const alreadyAssigned = subStockRes.data.map(p => p.barcode);
+      const available = parentStock.data.filter(p => !alreadyAssigned.includes(p.barcode));
+      setAssignableProducts(available);
     } else {
-      setSelectedProducts([...selectedProducts, barcode]);
-    }
-  };
+      const stockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
+      setDealerProducts(stockRes.data);
 
+      const readyRes = await axios.get('http://localhost:5000/api/products/good');
+      const unassigned = readyRes.data.filter(p => !p.assigned);
+      setAssignableProducts(unassigned);
+
+      // Fetch sub-dealers of this main dealer
+      const subRes = await axios.get(`http://localhost:5000/api/dealers`);
+      const subs = subRes.data.filter(d => d.parentDealer === dealer._id);
+      setSubDealers(subs);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to load stock');
+  }
+};
+
+  
   const assignBulkProducts = async () => {
     if (!selectedDealer || selectedProducts.length === 0) return;
   
@@ -56,99 +100,195 @@ function DealerStock() {
       const res = await axios.post('http://localhost:5000/api/products/assign-bulk', {
         barcodes: selectedProducts,
         destinationType: 'Dealer',
-        destinationId: selectedDealer._id,
+        destinationId: selectedDealer._id
       });
-  
-      const { invoiceId } = res.data;
-      navigate(`/invoice/${invoiceId}`);
   
       setSelectedProducts([]);
       loadDealerStock(selectedDealer);
+  
+      //  No invoice for sub-dealers
+      if (!selectedDealer.parentDealer) {
+        const { invoiceId } = res.data;
+        navigate(`/invoice/${invoiceId}`);
+      } else {
+        alert('Products assigned to sub-dealer without invoice.');
+      }
     } catch (err) {
       console.error(err);
       alert('Bulk assignment failed');
     }
   };
 
+  const createSubDealer = async () => {
+    if (!selectedDealer || !newDealerName) return;
+  
+    try {
+      const res = await axios.post(`http://localhost:5000/api/dealers/${selectedDealer._id}/subdealers`, {
+        name: newDealerName
+      });
+      setDealers([...dealers, res.data]);
+      setNewDealerName('');
+      setShowAddSubDealer(false);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to create sub-dealer');
+    }
+  };  
+  
+
   return (
     <div className="dealer-container">
-      <h2 className="dealer-title">Dealers</h2>
-
-      <button
-        onClick={() => setShowAddDealer(!showAddDealer)}
-        className="add-dealer-toggle"
+      {/* <h2>Dealers</h2> */}
+      <h2
+        style={{ cursor: selectedDealer ? 'pointer' : 'default' }}
+        onClick={() => {
+          if (selectedDealer) {
+            setSelectedDealer(null);
+            setDealerProducts([]);
+            setAssignableProducts([]);
+            setSelectedProducts([]);
+            setSubDealers([]);
+          }
+        }}
       >
-        {showAddDealer ? 'Cancel' : 'Add Dealer'}
-      </button>
-
-      {showAddDealer && (
-        <div className="add-dealer-form">
-          <input
-            type="text"
-            value={newDealerName}
-            onChange={(e) => setNewDealerName(e.target.value)}
-            placeholder="Dealer name"
-            className="add-dealer-input"
-          />
+        Dealers
+      </h2>
+       {!selectedDealer && (
           <button
-            onClick={async () => {
-              try {
-                const res = await axios.post('http://localhost:5000/api/dealers/create', {
-                  name: newDealerName,
-                });
-                setNewDealerName('');
-                setShowAddDealer(false);
-                setDealers([...dealers, res.data]);
-              } catch (err) {
-                console.error(err);
-                alert('Failed to add dealer');
-              }
-            }}
-            className="add-dealer-save"
+            onClick={() => setShowAddDealer(!showAddDealer)}
+            className="add-dealer-toggle"
           >
-            Save
+            {showAddDealer ? 'Cancel' : 'Add Dealer'}
           </button>
+        )}
+
+       {!selectedDealer && showAddDealer && (
+         <div className="add-dealer-form">
+           <input
+             type="text"
+             value={newDealerName}
+             onChange={(e) => setNewDealerName(e.target.value)}
+             placeholder="Dealer name"
+             className="add-dealer-input"
+           />
+           <button
+             onClick={async () => {
+               try {
+                 const res = await axios.post('http://localhost:5000/api/dealers/create', {
+                   name: newDealerName,
+                 });
+                setNewDealerName('');
+                 setShowAddDealer(false);
+                 setDealers([...dealers, res.data]);
+               } catch (err) {
+                 console.error(err);
+                 alert('Failed to add dealer');
+               }
+             }}
+             className="add-dealer-save"
+           >
+             Save
+           </button>
+         </div>
+       )}
+
+      {!selectedDealer && (
+        <div className="dealer-buttons">
+          {dealers.filter(d => !d.parentDealer).map(dealer => (
+            <div key={dealer._id} className="dealer-item">
+              <button
+                onClick={() => loadDealerStock(dealer)}
+              >
+                {dealer.name}
+              </button>
+            </div>
+          ))}
+
+          {editingDealerId && (
+            <div className="edit-dealer-form">
+              <input
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+              />
+              <button onClick={handleSaveEdit}>Save</button>
+              <button onClick={() => setEditingDealerId(null)}>Cancel</button>
+            </div>
+          )}
         </div>
       )}
 
-      <div className="dealer-buttons">
-        {dealers.map(dealer => (
-          <button
-            key={dealer._id}
-            className={`dealer-button ${
-              selectedDealer && selectedDealer._id === dealer._id ? 'active' : ''
-            }`}
-            onClick={() => loadDealerStock(dealer)}
-          >
-            {dealer.name}
-          </button>
-        ))}
-      </div>
 
       {selectedDealer && (
-        <div className="assign-section">
-          <h3 className="assign-title">Assign Product to {selectedDealer.name}</h3>
-          <div className="assign-input-group">
-            <h3>Select Products to Assign:</h3>
-              <ul className="assign-list">
-                {readyProducts.map(p => (
-                  <li key={p._id}>
-                    <input
-                      type="checkbox"
-                      checked={selectedProducts.includes(p.barcode)}
-                      onChange={() => handleProductToggle(p.barcode)}
-                    />
-                    {p.barcode}
+        <div className="dealer-details">
+          <h3>{selectedDealer.name} {selectedDealer.parentDealer ? "(Sub-Dealer)" : "(Main Dealer)"}</h3>
+
+          {!selectedDealer.parentDealer && (
+            <>
+              <button onClick={() => setShowAddSubDealer(!showAddSubDealer)}>
+                {showAddSubDealer ? 'Cancel' : 'Create Sub-Dealer'}
+              </button>
+
+              {showAddSubDealer && (
+                <div>
+                  <input
+                    type="text"
+                    value={newDealerName}
+                    onChange={(e) => setNewDealerName(e.target.value)}
+                    placeholder="Sub-dealer name"
+                  />
+                  <button onClick={createSubDealer}>Create</button>
+                </div>
+              )}
+            </>
+          )}
+
+          {!selectedDealer.parentDealer && (
+            <>
+
+              <h4>Sub-Dealers:</h4>
+              <ul>
+                {subDealers.map(sub => (
+                  <li key={sub._id}>
+                    <button onClick={() => loadDealerStock(sub)}>
+                      {sub.name}
+                    </button>
                   </li>
                 ))}
-              </ul> <br/>
-              <button onClick={assignBulkProducts} className="assign-button">Confirm</button>
-          </div>
-          <br />
-          <h4 className="assign-title">Dealer Stock:</h4>
-          <ul className="stock-list">
+              </ul>
+
+            </>
+          )}
+
+          <h4>Assign Products to {selectedDealer.name}:</h4>
+          {assignableProducts.length === 0 ? (
+            <p>No products available for assignment.</p>
+          ) : (
+            <ul>
+              {assignableProducts.map(p => (
+                <li key={p._id}>
+                  <input
+                    type="checkbox"
+                    checked={selectedProducts.includes(p.barcode)}
+                    onChange={() =>
+                      setSelectedProducts(prev =>
+                        prev.includes(p.barcode)
+                          ? prev.filter(b => b !== p.barcode)
+                          : [...prev, p.barcode]
+                      )
+                    }
+                  />
+                  {p.barcode}
+                </li>
+              ))}
+            </ul>
+          )}
+          <button onClick={assignBulkProducts}>Dispatch Selected</button>
+
+          <h4>Current Stock of {selectedDealer.name} Warehouse:</h4>
+          <ul>
             {dealerProducts.map(p => (
-              <li key={p._id}>{p.barcode}</li>
+              <li key={p._id}>{p.barcode} got this stock on {new Date(p.createdAt).toLocaleString()}</li>
             ))}
           </ul>
         </div>
