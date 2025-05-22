@@ -47,6 +47,8 @@ function Dashboard() {
         <div className="dashboard-box"><Link to="/ready">Finished Warehouse: {counts.good}</Link></div>
         <div className="dashboard-box"><Link to="/dealer-stock">Dealers Warehouse: {counts.dealer}</Link></div>
         <div className="dashboard-box"><Link to="/retailer-stock">Direct Sales warehouse: {counts.retailer}</Link></div>
+        <div className="dashboard-box"><Link to="/samples">Samples Warehouse</Link></div>
+        <div className="dashboard-box"><Link to="gifts">Gifts Warehouse</Link></div>
       </div>
       
     </div>

@@ -1,7 +1,11 @@
 const express = require('express');
+const axios = require('axios')
+const qs = require('qs')
+require('dotenv').config();
 const router = express.Router();
 const Warranty = require('../models/Warranty');
 const Product = require('../models/Product');
+const Notification = require('../models/Notification'); 
 
 const registrations = []; 
 const otpStore = {}; 
@@ -97,39 +101,125 @@ router.post("/getWarrantySms", async (req, res) => {
     };
   
     await sendSMS(phoneNumber, `Your warranty OTP is: ${otp}`);
+    console.log("Generated OTP:", otp, "for", phoneNumber);
   
     return res.status(200).json({ message: "OTP sent." });
 });
 
+// router.post("/verifyOtp", (req, res) => {
+//     const { phoneNumber, otp } = req.body;
+//     const record = otpStore[phoneNumber];
+//     const registration = registrations.find(r =>
+//       r.phone_number === phoneNumber
+//     );
+        
+
+//     if (registration) {
+//       registration.claimed = true; 
+//       registration.claimDate = new Date();
+//     }
+    
+  
+//     if (!record) {
+//       return res.status(400).json({ message: "OTP not requested." });
+//     }
+//         console.log("Stored OTP:", record.otp, "Type:", typeof record.otp);
+//         console.log("Received OTP:", otp, "Type:", typeof otp);
+//     // if (record.otp !== otp) {
+//     //   return res.status(400).json({ message: "Invalid OTP." });
+//     // }
+//     if (String(record.otp) !== String(otp)) {
+//       return res.status(400).json({ message: "Invalid OTP." });
+//     }
+    
+  
+//     if (Date.now() > record.expiresAt) {
+//       return res.status(400).json({ message: "OTP expired." });
+//     }
+
+  
+//     delete otpStore[phoneNumber];
+  
+//     return res.status(200).json({ message: "OTP verified. You may claim warranty." });
+// });
+// router.post("/verifyOtp", (req, res) => {
+//   const { phoneNumber, otp } = req.body;
+
+//   console.log("Received phoneNumber:", phoneNumber);
+//   console.log("Received OTP:", otp);
+  
+//   const record = otpStore[phoneNumber];
+//   if (!record) {
+//     return res.status(400).json({ message: "OTP not requested." });
+//   }
+
+//   console.log("Stored OTP:", record.otp, "Type:", typeof record.otp);
+//   console.log("Received OTP:", otp, "Type:", typeof otp);
+
+//   if (String(record.otp).trim() !== String(otp).trim()) {
+//     return res.status(400).json({ message: "Invalid OTP." });
+//   }
+
+//   if (Date.now() > record.expiresAt) {
+//     return res.status(400).json({ message: "OTP expired." });
+//   }
+
+//   const registration = registrations.find(r => r.phone_number === phoneNumber);
+//   if (registration) {
+//     registration.claimed = true;
+//     registration.claimDate = new Date();
+//   }
+
+//   delete otpStore[phoneNumber];
+//   return res.status(200).json({ message: "OTP verified. You may claim warranty." });
+// });
+
 router.post("/verifyOtp", (req, res) => {
-    const { phoneNumber, otp } = req.body;
-    const record = otpStore[phoneNumber];
-    const registration = registrations.find(r =>
-      r.phone_number === phoneNumber
-    );
-    
-    if (registration) {
-      registration.claimed = true; 
-      registration.claimDate = new Date();
-    }
-    
-  
-    if (!record) {
-      return res.status(400).json({ message: "OTP not requested." });
-    }
-  
-    if (record.otp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP." });
-    }
-  
-    if (Date.now() > record.expiresAt) {
-      return res.status(400).json({ message: "OTP expired." });
-    }
-  
-    delete otpStore[phoneNumber];
-  
-    return res.status(200).json({ message: "OTP verified. You may claim warranty." });
+  const { phoneNumber, otp } = req.body;
+  const record = otpStore[phoneNumber];
+  const registration = registrations.find(r => r.phone_number === phoneNumber);
+
+  if (!record) {
+    return res.status(400).json({ message: "OTP not requested." });
+  }
+
+  if (String(record.otp) !== String(otp)) {
+    return res.status(400).json({ message: "Invalid OTP." });
+  }
+
+  if (Date.now() > record.expiresAt) {
+    return res.status(400).json({ message: "OTP expired." });
+  }
+
+  if (registration) {
+    registration.claimed = true;
+    registration.claimDate = new Date();
+
+    // Save notification
+    const notification = new Notification({
+      phoneNumber,
+      serialNumber: registration.serial_number,
+      message: `Warranty claim made by ${phoneNumber} for product ${registration.serial_number}`
+    });
+
+    notification.save().catch(err => console.error("Failed to save notification:", err));
+  }
+
+  delete otpStore[phoneNumber];
+
+  return res.status(200).json({ message: "Successful. Visit any of our authorized outlets for help." });
 });
+
+router.get("/notifications", async (req, res) => {
+  try {
+    const notifications = await Notification.find().sort({ createdAt: -1 });
+    res.json(notifications);
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+    res.status(500).json({ message: "Failed to load notifications." });
+  }
+});
+
 
 router.get("/registrations", (req, res) => {
     const sixMonthsAgo = new Date();

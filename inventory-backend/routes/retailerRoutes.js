@@ -95,6 +95,25 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Update retailer by ID
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedRetailer = await Retailer.findByIdAndUpdate(
+      req.params.id,
+      req.body,  
+      { new: true, runValidators: true }
+    );
+    if (!updatedRetailer) {
+      return res.status(404).json({ message: 'Retailer not found' });
+    }
+    res.json(updatedRetailer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to update retailer' });
+  }
+});
+
+
   router.get('/stock-count', async (req, res) => {
     try {
       const total = await Product.countDocuments({ assignedToType: 'retailer' });

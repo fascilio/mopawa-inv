@@ -7,12 +7,16 @@ function MaintenanceProducts() {
   const [productsOut, setProductsOut] = useState([]);
   const [view, setView] = useState('in'); 
   const [maintenanceCount, setMaintenanceCount] = useState(0);
-  //const [historyProducts, setHistoryProducts] = useState([]);
+  const [scanInput, setScanInput] = useState('');
+  const [pendingProducts, setPendingProducts] = useState([]);
+  const [maintenanceProducts, setMaintenanceProducts] = useState([]);
 
   useEffect(() => {
     fetchStockIn();
     fetchStockOut();
     fetchMaintenanceCount();
+    fetchPendingProducts();
+    fetchMaintenanceProducts();
   }, []);  
 
   const fetchStockIn = () => {
@@ -34,7 +38,57 @@ function MaintenanceProducts() {
       .get('http://localhost:5000/api/products/maintenance-count')
       .then((res) => setMaintenanceCount(res.data.total))
       .catch((err) => console.error('Failed to fetch maintenance count', err));
-  };  
+  };
+
+  const fetchPendingProducts = () => {
+    axios
+      .get('http://localhost:5000/api/products/pending')
+      .then((res) => setPendingProducts(res.data))
+      .catch((err) => console.error(err));
+  };
+
+  const fetchMaintenanceProducts = () => {
+    axios
+      .get('http://localhost:5000/api/products/bad')
+      .then((res) => setMaintenanceProducts(res.data))
+      .catch((err) => console.error(err));
+  };
+
+  const handleScan = async () => {
+    const barcode = scanInput.trim();
+    setScanInput('');
+  
+    if (!barcode) return;
+  
+    try {
+      if (view === 'in') {
+        const pendingRes = await axios.get('http://localhost:5000/api/products/pending');
+        const product = pendingRes.data.find(p => p.barcode === barcode);
+  
+        if (!product) return alert('Product not found or not in pending list');
+
+        await axios.post(`http://localhost:5000/api/products/test/${product._id}`, {
+          status: 'bad'
+        });
+  
+        fetchStockIn();
+        fetchMaintenanceCount();
+      } else if (view === 'out') {
+        const badRes = await axios.get('http://localhost:5000/api/products/bad');
+        const product = badRes.data.find(p => p.barcode === barcode);
+  
+        if (!product) return alert('Product not found in maintenance');
+  
+        await axios.put(`http://localhost:5000/api/products/${product._id}/mark-good`);
+  
+        fetchStockOut();
+        fetchMaintenanceCount();
+      }
+    } catch (err) {
+      console.error('Scan error:', err.response?.data || err.message);
+      alert('Failed to process product');
+    }
+  };
 
   const markAsGood = async (productId) => {
     try {
@@ -51,7 +105,6 @@ function MaintenanceProducts() {
 
   return (
     <div className="maintenance-container">
-      {/* <h2 className="maintenance-title">Maintenance Warehouse</h2> */}
       <h2 className="maintenance-title">Maintenance Warehouse ({maintenanceCount})</h2>
 
       <div className="stock-buttons">
@@ -67,6 +120,17 @@ function MaintenanceProducts() {
         >
           Stock Out
         </button>
+      </div>
+
+      <div className="scan-field">
+        <input
+          type="text"
+          placeholder="Scan barcode..."
+          value={scanInput}
+          onChange={(e) => setScanInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleScan()}
+        />
+        <button onClick={handleScan}>Scan</button>
       </div>
 
       <ul className="maintenance-list">
@@ -86,4 +150,3 @@ function MaintenanceProducts() {
 }
 
 export default MaintenanceProducts;
-

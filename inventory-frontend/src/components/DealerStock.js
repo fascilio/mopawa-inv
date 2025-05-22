@@ -14,7 +14,8 @@ function DealerStock() {
   const [showAddDealer, setShowAddDealer] = useState(false);
   const navigate = useNavigate();
   const [editingDealerId, setEditingDealerId] = useState(null);
-const [editedName, setEditedName] = useState('');
+  const [editedName, setEditedName] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
 const handleEditDealer = (dealer) => {
   setEditingDealerId(dealer._id);
@@ -148,11 +149,21 @@ const handleDeleteDealer = async (id) => {
             setAssignableProducts([]);
             setSelectedProducts([]);
             setSubDealers([]);
+            setSearchTerm('');
           }
         }}
       >
-        Dealers
+        Dealers Warehouse
       </h2>
+      <input
+        type="text"
+        placeholder={
+          !selectedDealer ? 'Search main dealer...' : 'Search sub-dealer...'
+        }
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="dealer-search-input"
+      />
        {!selectedDealer && (
           <button
             onClick={() => setShowAddDealer(!showAddDealer)}
@@ -194,16 +205,14 @@ const handleDeleteDealer = async (id) => {
 
       {!selectedDealer && (
         <div className="dealer-buttons">
-          {dealers.filter(d => !d.parentDealer).map(dealer => (
-            <div key={dealer._id} className="dealer-item">
-              <button
-                onClick={() => loadDealerStock(dealer)}
-              >
-                {dealer.name}
-              </button>
-            </div>
+          {/* {dealers.filter(d => !d.parentDealer).map(dealer => ( */}
+          {dealers
+            .filter(d => !d.parentDealer && d.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            .map(dealer => (
+              <div key={dealer._id} className="dealer-item">
+                <button onClick={() => loadDealerStock(dealer)}>{dealer.name}</button>
+              </div>
           ))}
-
           {editingDealerId && (
             <div className="edit-dealer-form">
               <input
@@ -247,7 +256,7 @@ const handleDeleteDealer = async (id) => {
             <>
 
               <h4>Sub-Dealers:</h4>
-              <ul>
+              {/* <ul>
                 {subDealers.map(sub => (
                   <li key={sub._id}>
                     <button onClick={() => loadDealerStock(sub)}>
@@ -255,8 +264,16 @@ const handleDeleteDealer = async (id) => {
                     </button>
                   </li>
                 ))}
+              </ul> */}
+              <ul>
+                {subDealers
+                  .filter(sub => sub.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map(sub => (
+                    <li key={sub._id}>
+                      <button onClick={() => loadDealerStock(sub)}>{sub.name}</button>
+                    </li>
+                  ))}
               </ul>
-
             </>
           )}
 

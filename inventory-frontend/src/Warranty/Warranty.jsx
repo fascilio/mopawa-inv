@@ -49,13 +49,19 @@ function Warranty() {
     setErrorMessage("");
     setLoading(true);
     try {
-      const response = await axios.post(
-        // "https://warranty.mopawa.co.ke/verifyOtp",
-        "http://localhost:5000/verifyOtp", 
-      {
-        phoneNumber: claimNumber,
-        otp,
+      // const response = await axios.post(
+      //   // "https://warranty.mopawa.co.ke/verifyOtp",
+      //   "http://localhost:5000/verifyOtp", 
+      // {
+      //   phoneNumber: claimNumber,
+      //   otp,
+      // });
+      const response = await 
+      axios.post("http://localhost:5000/api/warranty/verifyOtp", {
+        phoneNumber: claimNumber.trim(),
+        otp: otp.trim(),
       });
+      
       setSuccessMessage(response.data.message);
       setTimeout(() => setSuccessMessage(""), 3000); 
       setOtpSent(false);

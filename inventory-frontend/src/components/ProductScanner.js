@@ -43,7 +43,7 @@ function TestingStation() {
     <div className="testing-container">
       <button onClick={() => setActiveComponent('stock-in')} className="testing-stock-in">Stock In</button>
       <button onClick={() => setActiveComponent('stock-out')} className="testing-stock-out">Stock Out</button>
-      <button onClick={() => setActiveComponent('testing-warehouse')} className="testing-warehouse">testing Warehouse</button>
+      {/* <button onClick={() => setActiveComponent('testing-warehouse')} className="testing-warehouse">testing Warehouse</button> */}
       <button onClick={() => setActiveComponent('product-history')} className="testing-product-history">Product History</button>
 
       {/* {activeComponent === 'stock-in' && <BarcodeInputScanner onDetected={handleScanDetected} scanStatus={scanStatus} />} */}
@@ -60,7 +60,7 @@ function TestingStation() {
       )}
       {activeComponent === 'stock-out' && <StockOut />}
       {activeComponent === 'product-history' && <AssignedProducts />}
-      {activeComponent === 'testing-warehouse' && <TestingQueue reloadTrigger={reloadKey} />}
+      {/* {activeComponent === 'testing-warehouse' && <TestingQueue reloadTrigger={reloadKey} />} */}
 
       {activeComponent === '' && (
         <>

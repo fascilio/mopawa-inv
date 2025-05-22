@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import './StockIn.css';
 //import ProductScanner from './ProductScanner'
+import TestingQueue from './TestingQueue';
 
 function StockInPage() {
     const [products, setProducts] = useState([]);
+    const [reloadKey, setReloadKey] = useState(0);
 
     useEffect(() => {
         api.get('/products/all')
@@ -15,16 +17,17 @@ function StockInPage() {
     return (
         <div className="table-scroll-container">
             
-            <h3> All registered products</h3>
+            {/* <h3> All registered products</h3> */}
             {/* <ProductScanner /> */}
-            <ul>
+            {/* <ul>
                 {products.map(p => (
                     <li key={p._id}>
                     {p.barcode} <br />
                     Stocked In: {new Date(p.createdAt).toLocaleString()}
                     </li>
                 ))}
-                </ul>
+                </ul> */}
+            <TestingQueue reloadTrigger={reloadKey} />
 
         </div>
     )

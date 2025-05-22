@@ -6,6 +6,7 @@ const dealerRoutes = require('./routes/dealerRoutes');
 const retailerRoutes = require('./routes/retailerRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const warrantyRoutes = require('./routes/warranty');
+const mpesaRoutes = require('./routes/mpesaRoutes');
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use('/api/dealers', dealerRoutes);
 app.use('/api/retailers', retailerRoutes);
 app.use('/api/invoice', invoiceRoutes);
 app.use('/api/warranty', warrantyRoutes);
+app.use('/api/mpesa', mpesaRoutes);
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
