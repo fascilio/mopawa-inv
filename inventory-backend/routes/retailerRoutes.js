@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Retailer = require('../models/Retailer');
 const Product = require('../models/Product');
+const Invoice = require('../models/Invoice'); 
 const router = express.Router();
 
 router.post('/create', async (req, res) => {
@@ -48,7 +49,16 @@ router.get('/:id/stock', async (req, res) => {
   }
 });
 
-
+router.get('/:id/invoices', async (req, res) => {
+  try {
+    const retailerId = req.params.id;
+    const invoices = await Invoice.find({ clientId: retailerId, clientType: 'Retailer' }).sort({ createdAt: -1 });
+    res.json(invoices);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to fetch invoices' });
+  }
+});
 
 router.post('/:id/team-member', async (req, res) => {
   try {

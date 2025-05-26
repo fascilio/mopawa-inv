@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Dealer = require('../models/Dealer');
 const Product = require('../models/Product');
+const Invoice = require('../models/Invoice');
 
 // Get all dealers
 router.get('/', async (req, res) => {
@@ -38,6 +39,16 @@ router.get('/:dealerId/stock', async (req, res) => {
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/:dealerId/invoices', async (req, res) => {
+  try {
+    const invoices = await Invoice.find({ customer: req.params.dealerId }).populate('products');
+    res.json(invoices);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch invoices' });
   }
 });
 

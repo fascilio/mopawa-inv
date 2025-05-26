@@ -62,15 +62,15 @@ function InvoicePage() {
           <p>Customer Type: {invoice.customerType}</p>
         </section>
 
-        <section className="product-list">
+        {/*<section className="product-list">
           <table>
             <thead>
               <tr>
                 <th>#</th>
-                 {/* <th>Description</th>
+                  <th>Description</th>
                 <th>Unit Price</th>
                <th>Quantity</th> */}
-                <th>Barcode</th>
+                {/*<th>Barcode</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -78,9 +78,9 @@ function InvoicePage() {
               {invoice.products.map((p, i) => (
                 <tr key={p._id}>
                   <td>{i + 1}</td>
-                  {/* <td>{p.description}</td>
+                   <td>{p.description}</td>
                   <td>{p.unitPrice}</td>
-                  <td>{p.quantity}</td> */}
+                  <td>{p.quantity}</td> 
                   <td>{p.barcode}</td>
                   <td>{p.status}</td>
                 </tr>
@@ -88,6 +88,33 @@ function InvoicePage() {
             </tbody>
           </table>
           <p className="total">Total Items: {invoice.totalItems}</p>
+        </section>*/}
+        <section className="product-list">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Barcode</th>
+                <th>Status</th>
+                <th>Description</th>
+                <th>Unit Price (Ksh)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.products.map((p, i) => (
+                <tr key={p._id}>
+                  <td>{i + 1}</td>
+                  <td>{p.barcode}</td>
+                  <td>{p.status}</td>
+                  <td>5000mAh Power Bank</td>
+                  <td>1000</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <p className="total">Total Items: {invoice.totalItems}</p>
+          <p className="total">Total Amount: {invoice.totalItems * 1000} Ksh</p>
         </section>
       </div>
 

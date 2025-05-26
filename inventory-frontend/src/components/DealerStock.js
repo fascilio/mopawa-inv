@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './DealerStock.css';
 
@@ -16,40 +16,59 @@ function DealerStock() {
   const [editingDealerId, setEditingDealerId] = useState(null);
   const [editedName, setEditedName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [dealerInvoices, setDealerInvoices] = useState([]);
+  const [showInvoices, setShowInvoices] = useState(false);
 
-const handleEditDealer = (dealer) => {
-  setEditingDealerId(dealer._id);
-  setEditedName(dealer.name);
-};
 
-const handleSaveEdit = async () => {
-  try {
-    const res = await axios.put(`http://localhost:5000/api/dealers/${editingDealerId}`, {
-      name: editedName
-    });
-    setDealers(dealers.map(d => d._id === editingDealerId ? res.data : d));
-    setEditingDealerId(null);
-    setEditedName('');
-  } catch (err) {
-    console.error(err);
-    alert('Failed to update dealer');
-  }
-};
+  const handleEditDealer = (dealer) => {
+    setEditingDealerId(dealer._id);
+    setEditedName(dealer.name);
+  };
+  
+  useEffect(() => {
+    setDealerInvoices([]);
+    setShowInvoices(false);
+  }, [selectedDealer]);
 
-const handleDeleteDealer = async (id) => {
-  if (!window.confirm('Are you sure you want to delete this dealer?')) return;
-  try {
-    await axios.delete(`http://localhost:5000/api/dealers/${id}`);
-    setDealers(dealers.filter(d => d._id !== id));
-    if (selectedDealer && selectedDealer._id === id) {
-      setSelectedDealer(null);
-      setDealerProducts([]);
+  const fetchDealerInvoices = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/dealers/${selectedDealer._id}/invoices`);
+      setDealerInvoices(res.data);
+      setShowInvoices(true);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load invoices');
     }
-  } catch (err) {
-    console.error(err);
-    alert('Failed to delete dealer');
-  }
-};
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const res = await axios.put(`http://localhost:5000/api/dealers/${editingDealerId}`, {
+        name: editedName
+      });
+      setDealers(dealers.map(d => d._id === editingDealerId ? res.data : d));
+      setEditingDealerId(null);
+      setEditedName('');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update dealer');
+    }
+  };
+
+  const handleDeleteDealer = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this dealer?')) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/dealers/${id}`);
+      setDealers(dealers.filter(d => d._id !== id));
+      if (selectedDealer && selectedDealer._id === id) {
+        setSelectedDealer(null);
+        setDealerProducts([]);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete dealer');
+    }
+  };
 
 
   useEffect(() => {
@@ -61,37 +80,37 @@ const handleDeleteDealer = async (id) => {
   const [subDealers, setSubDealers] = useState([]);
 
   const loadDealerStock = async (dealer) => {
-  setSelectedDealer(dealer);
-  setShowAddSubDealer(false);
-  setSelectedProducts([]);
+    setSelectedDealer(dealer);
+    setShowAddSubDealer(false);
+    setSelectedProducts([]);
 
-  try {
-    if (dealer.parentDealer) {
-      const subStockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
-      setDealerProducts(subStockRes.data);
+    try {
+      if (dealer.parentDealer) {
+        const subStockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
+        setDealerProducts(subStockRes.data);
 
-      const parentStock = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/stock`);
-      const alreadyAssigned = subStockRes.data.map(p => p.barcode);
-      const available = parentStock.data.filter(p => !alreadyAssigned.includes(p.barcode));
-      setAssignableProducts(available);
-    } else {
-      const stockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
-      setDealerProducts(stockRes.data);
+        const parentStock = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/stock`);
+        const alreadyAssigned = subStockRes.data.map(p => p.barcode);
+        const available = parentStock.data.filter(p => !alreadyAssigned.includes(p.barcode));
+        setAssignableProducts(available);
+      } else {
+        const stockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
+        setDealerProducts(stockRes.data);
 
-      const readyRes = await axios.get('http://localhost:5000/api/products/good');
-      const unassigned = readyRes.data.filter(p => !p.assigned);
-      setAssignableProducts(unassigned);
+        const readyRes = await axios.get('http://localhost:5000/api/products/good');
+        const unassigned = readyRes.data.filter(p => !p.assigned);
+        setAssignableProducts(unassigned);
 
-      // Fetch sub-dealers of this main dealer
-      const subRes = await axios.get(`http://localhost:5000/api/dealers`);
-      const subs = subRes.data.filter(d => d.parentDealer === dealer._id);
-      setSubDealers(subs);
+        // Fetch sub-dealers of this main dealer
+        const subRes = await axios.get(`http://localhost:5000/api/dealers`);
+        const subs = subRes.data.filter(d => d.parentDealer === dealer._id);
+        setSubDealers(subs);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load stock');
     }
-  } catch (err) {
-    console.error(err);
-    alert('Failed to load stock');
-  }
-};
+  };
 
   
   const assignBulkProducts = async () => {
@@ -308,6 +327,22 @@ const handleDeleteDealer = async (id) => {
               <li key={p._id}>{p.barcode} got this stock on {new Date(p.createdAt).toLocaleString()}</li>
             ))}
           </ul>
+          <button onClick={fetchDealerInvoices}>INVOICES</button>
+          {showInvoices && (
+            <div>
+              <h4>Invoices for {selectedDealer.name}</h4>
+              <ul>
+              {dealerInvoices.map(inv => (
+                <li key={inv._id}>
+                  Invoice #{inv.invoiceNumber} - {new Date(inv.createdAt).toLocaleDateString()} - 
+                  {/* <a href={`http://localhost:5000/api/invoice/${inv._id}/view`} target="_blank" rel="noopener noreferrer">View PDF</a> |  */}
+                  <Link to={`/invoice/${inv._id}`} target="_blank" rel="noopener noreferrer">View </Link> or 
+                  <a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
+                </li>
+              ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

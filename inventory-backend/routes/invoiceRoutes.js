@@ -32,5 +32,30 @@ router.get('/:invoiceId', async (req, res) => {
   res.json(invoice);
 });
 
+router.get('/:id/view', async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id)
+      .populate('customer')
+      .populate('products');
+
+    if (!invoice) return res.status(404).send('Invoice not found');
+
+    const filename = `${invoice.invoiceNumber}.pdf`;
+    const filePath = path.join(__dirname, '..', 'invoices', filename);
+
+    generateInvoicePdf(invoice, invoice.customer, invoice.products, filePath);
+
+    // Wait briefly for the PDF to be generated
+    setTimeout(() => {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="' + filename + '"');
+      res.sendFile(filePath);
+    }, 500);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error generating invoice');
+  }
+});
+
 
 module.exports = router;

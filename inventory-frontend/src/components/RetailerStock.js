@@ -20,6 +20,8 @@ function RetailerStock() {
   const [teamLeaderId, setTeamLeaderId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
+  const [retailerInvoices, setRetailerInvoices] = useState([]);
+  const [showInvoices, setShowInvoices] = useState(false);
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/retailers')
@@ -51,6 +53,22 @@ function RetailerStock() {
       .then(res => setRetailProducts(res.data))
       .catch(err => console.error(err));
   };
+
+  useEffect(() => {
+    setRetailerInvoices([]);
+    setShowInvoices(false);
+  }, [selectedRetailer]);
+
+  const fetchRetailerInvoices = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/retailers/${selectedRetailer._id}/invoices`);
+      setRetailerInvoices(res.data);
+      setShowInvoices(true);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load invoices');
+    }
+  };  
 
   const handleSelectRetailer = (id) => {
     const retailer = retailers.find(r => r._id === id);
@@ -327,6 +345,48 @@ function RetailerStock() {
                 ))}
             </ul>
           )}
+          {/* <button onClick={fetchRetailerInvoices}>INVOICES</button> */}
+          {selectedRetailer && (
+  <button
+    onClick={fetchRetailerInvoices}
+    className="retailer-button"
+    style={{ marginTop: '1rem' }}
+  >
+    View Invoices
+  </button>
+)}
+
+            {/* {showInvoices && (
+              <div>
+                <h4>Invoices for {selectedRetailer.name}</h4>
+                <ul>
+                  {retailerInvoices.map(inv => (
+                    <li key={inv._id}>
+                      Invoice #{inv.invoiceNumber} - {new Date(inv.createdAt).toLocaleDateString()} - 
+                      <Link to={`/invoice/${inv._id}`} target="_blank" rel="noopener noreferrer">View </Link> or 
+                      <a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )} */}
+            {showInvoices && (
+  <div className="invoice-list">
+    <h3>Invoices</h3>
+    {retailerInvoices.length === 0 ? (
+      <p>No invoices found.</p>
+    ) : (
+      <ul>
+        {retailerInvoices.map(invoice => (
+          <li key={invoice._id}>
+            <Link to={`/invoice/${invoice._id}`}>Invoice #{invoice._id}</Link>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)}
+
           <div className="warranty-section">
             {/* <h3>Warranty Actions for {retailers.find(r => r._id === selectedRetailer)?.name}</h3> */}
             <h3>Warranty Actions for {selectedRetailer.name}</h3>
