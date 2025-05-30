@@ -10,7 +10,8 @@ function InvoiceViewer() {
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/invoice/${invoiceId}`);
+        const res = await axios.get(`${process.env.BASE_URL}/api/invoice${invoiceId}`);
+        //(`http://localhost:5000/api/invoice/${invoiceId}`);
         setInvoice(res.data);
       } catch (err) {
         console.error('Failed to fetch invoice:', err);

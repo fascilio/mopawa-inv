@@ -4,7 +4,7 @@ const invoiceSchema = new mongoose.Schema({
   invoiceNumber: String,
   customerType: {
     type: String, 
-    enum: ['Dealer', 'Retailer']
+    enum: ['Dealer', 'Retailer', 'Sample', 'gift']
   },
   customer: {
     type: mongoose.Schema.Types.ObjectId,

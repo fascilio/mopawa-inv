@@ -39,40 +39,75 @@ async function sendSMS(phone, message) {
   }
 }
 
-router.post("/register", async (req, res) => {
-    const { phone_number, serial_number } = req.body;
+// router.post("/register", async (req, res) => {
+//     const { phone_number, serial_number } = req.body;
   
-    const exists = registrations.find(
-      (r) => r.phone_number === phone_number && r.serial_number === serial_number
-    );
-    if (exists) {
-      return res.status(400).json({ message: "Already registered." });
-    }
+//     const exists = registrations.find(
+//       (r) => r.phone_number === phone_number && r.serial_number === serial_number
+//     );
+//     if (exists) {
+//       return res.status(400).json({ message: "Already registered." });
+//     }
   
-  //   registrations.push({
-  //     phone_number,
-  //     serial_number,
-  //     registeredAt: new Date(),
-  //   });
+//   //   registrations.push({
+//   //     phone_number,
+//   //     serial_number,
+//   //     registeredAt: new Date(),
+//   //   });
   
-  registrations.push({
-      id: registrations.length + 1,
-      phone_number,
-      serial_number,
-      registeredAt: new Date(),
-      warrantyStatus: "active",
-      claimed: false
-    });
+//   registrations.push({
+//       id: registrations.length + 1,
+//       phone_number,
+//       serial_number,
+//       registeredAt: new Date(),
+//       warrantyStatus: "active",
+//       claimed: false
+//     });
     
   
-    await sendSMS(
-      phone_number,
-      "Thank you. You have successfully registered your new power bank."
-    );
+//     await sendSMS(
+//       phone_number,
+//       "Thank you. You have successfully registered your new power bank."
+//     );
   
-    return res.status(200).json({ message: "Registered successfully." });
+//     return res.status(200).json({ message: "Registered successfully." });
+//   });
+
+router.post("/register", async (req, res) => {
+  const { phone_number, serial_number } = req.body;
+
+  const exists = registrations.find(
+    (r) => r.phone_number === phone_number && r.serial_number === serial_number
+  );
+  if (exists) {
+    return res.status(400).json({ message: "Already registered." });
+  }
+
+  registrations.push({
+    id: registrations.length + 1,
+    phone_number,
+    serial_number,
+    registeredAt: new Date(),
+    warrantyStatus: "active",
+    claimed: false
   });
 
+  // Send SMS
+  await sendSMS(
+    phone_number,
+    "Thank you. You have successfully registered your new power bank."
+  );
+
+  // Save registration notification
+  const notification = new Notification({
+    phoneNumber: phone_number,
+    serialNumber: serial_number,
+    message: `New warranty registration by ${phone_number} for product ${serial_number}`
+  });
+  await notification.save().catch(err => console.error("Failed to save registration notification:", err));
+
+  return res.status(200).json({ message: "Registered successfully." });
+});
 
 
 router.post("/getWarrantySms", async (req, res) => {
@@ -220,6 +255,25 @@ router.get("/notifications", async (req, res) => {
   }
 });
 
+router.post('/claim', async (req, res) => {
+  const { phoneNumber, serialNumber } = req.body;
+
+  try {
+    const message = `Warranty claim made by ${phoneNumber} for product ${serialNumber}`;
+    const notification = new Notification({
+      phoneNumber,
+      serialNumber,
+      type: 'warranty-claim',
+      message,
+    });
+    await notification.save();
+
+    res.status(201).json({ message: 'Warranty claim submitted successfully.' });
+  } catch (err) {
+    console.error('Claim failed:', err);
+    res.status(500).json({ error: 'Server error during claim.' });
+  }
+});
 
 router.get("/registrations", (req, res) => {
     const sixMonthsAgo = new Date();

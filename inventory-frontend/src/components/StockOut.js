@@ -12,7 +12,8 @@ function StockOutPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products/good')
+    axios.get(`${process.env.BASE_URL}/api/products/good`)
+    //('http://localhost:5000/api/products/good')
       .then(res => {
         const unassigned = res.data.filter(p => !p.assigned);
         setProducts(unassigned);
@@ -28,7 +29,8 @@ function StockOutPage() {
 
     const endpoint = type === 'Dealer' ? '/api/dealers' : '/api/retailers';
 
-    axios.get(`http://localhost:5000${endpoint}`)
+    axios.get(`${process.env.BASE_URL}${endpoint}`)
+    //(`http://localhost:5000${endpoint}`)
       .then(res => {
         const filtered = type === 'Dealer'
           ? res.data.filter(d => !d.parentDealer)
@@ -58,7 +60,8 @@ function StockOutPage() {
     if (!selectedClient || scannedBarcodes.length === 0) return;
 
     try {
-      const res = await axios.post('http://localhost:5000/api/products/assign-bulk', {
+      const res = await axios.post(`${process.env.BASE_URL}/api/products/assign-bulk`, {
+      //('http://localhost:5000/api/products/assign-bulk', {
         barcodes: scannedBarcodes,
         destinationType: clientType,
         destinationId: selectedClient._id
@@ -85,6 +88,8 @@ function StockOutPage() {
           <option value="">-- Select --</option>
           <option value="Dealer">Dealer</option>
           <option value="Retailer">Retailer</option>
+          {/* <option value="sample">Sample</option>
+          <option value="gift">Gift</option> */}
         </select>
       </div>
 

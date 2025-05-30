@@ -21,35 +21,40 @@ function MaintenanceProducts() {
 
   const fetchStockIn = () => {
     axios
-      .get('http://localhost:5000/api/products/bad')
+      .get(`${process.env.BASE_URL}/api/products/bad`)
+      //('http://localhost:5000/api/products/bad')
       .then((res) => setProductsIn(res.data))
       .catch((err) => console.error(err));
   };
 
   const fetchStockOut = () => {
     axios
-      .get('http://localhost:5000/api/products/maintenance-out') 
+      .get(`${process.env.BASE_URL}/api/products/maintenance-out`)
+      //('http://localhost:5000/api/products/maintenance-out') 
       .then((res) => setProductsOut(res.data))
       .catch((err) => console.error(err));
   };
 
   const fetchMaintenanceCount = () => {
     axios
-      .get('http://localhost:5000/api/products/maintenance-count')
+      .get(`${process.env.BASE_URL}/api/products/maintenance-count`)
+      //('http://localhost:5000/api/products/maintenance-count')
       .then((res) => setMaintenanceCount(res.data.total))
       .catch((err) => console.error('Failed to fetch maintenance count', err));
   };
 
   const fetchPendingProducts = () => {
     axios
-      .get('http://localhost:5000/api/products/pending')
+      .get(`${process.env.BASE_URL}/api/products/pending`)
+      //('http://localhost:5000/api/products/pending')
       .then((res) => setPendingProducts(res.data))
       .catch((err) => console.error(err));
   };
 
   const fetchMaintenanceProducts = () => {
     axios
-      .get('http://localhost:5000/api/products/bad')
+      .get(`${process.env.BASE_URL}/api/products/bad`)
+      //('http://localhost:5000/api/products/bad')
       .then((res) => setMaintenanceProducts(res.data))
       .catch((err) => console.error(err));
   };
@@ -62,24 +67,28 @@ function MaintenanceProducts() {
   
     try {
       if (view === 'in') {
-        const pendingRes = await axios.get('http://localhost:5000/api/products/pending');
+        const pendingRes = await axios.get(`${process.env.BASE_URL}/api/products/pending`);
+        //('http://localhost:5000/api/products/pending');
         const product = pendingRes.data.find(p => p.barcode === barcode);
   
         if (!product) return alert('Product not found or not in pending list');
 
-        await axios.post(`http://localhost:5000/api/products/test/${product._id}`, {
+        await axios.post(`${process.env.BASE_URL}/api/products/test/${product._id}`, {
+        //(`http://localhost:5000/api/products/test/${product._id}`, {
           status: 'bad'
         });
   
         fetchStockIn();
         fetchMaintenanceCount();
       } else if (view === 'out') {
-        const badRes = await axios.get('http://localhost:5000/api/products/bad');
+        const badRes = await axios.get(`${process.env.BASE_URL}/api/products/bad`);
+        //('http://localhost:5000/api/products/bad');
         const product = badRes.data.find(p => p.barcode === barcode);
   
         if (!product) return alert('Product not found in maintenance');
   
-        await axios.put(`http://localhost:5000/api/products/${product._id}/mark-good`);
+        await axios.put(`${process.env.BASE_URL}/api/products/${product._id}/mark-good`);
+        //(`http://localhost:5000/api/products/${product._id}/mark-good`);
   
         fetchStockOut();
         fetchMaintenanceCount();
@@ -92,7 +101,8 @@ function MaintenanceProducts() {
 
   const markAsGood = async (productId) => {
     try {
-      await axios.put(`http://localhost:5000/api/products/${productId}/mark-good`);
+      await axios.put(`${process.env.BASE_URL}/api/products/${productId}/mark-good`);
+      //(`http://localhost:5000/api/products/${productId}/mark-good`);
       fetchStockIn();
       fetchStockOut(); 
     } catch (err) {

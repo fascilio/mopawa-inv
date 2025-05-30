@@ -11,7 +11,7 @@ function SidebarLayout() {
           <li><Link to="/">Dashboard</Link></li>
           <li><Link to="/notifications">Notifications</Link></li>
           <li><Link to="/payments">Payments</Link></li>
-          <li><Link to="/stk-push">stk push</Link></li>
+          {/* <li><Link to="/stk-push">stk push</Link></li> */}
           {/* <li><Link to="/testing">Pending Testing</Link></li> */}
           {/* <li><Link to="/ready">Ready for Market</Link></li> */}
           {/* <li><Link to="/maintenance">Maintenance Warehouse</Link></li> */}

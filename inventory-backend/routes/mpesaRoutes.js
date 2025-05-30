@@ -15,67 +15,33 @@ const {
 
 async function getAccessToken() {
   const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString("base64");
-  const res = await axios.get(
-    "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
-    {
-      headers: { Authorization: `Basic ${auth}` },
-    }, //console.log("Encoded Auth Header:", auth)
 
-  );
-   return res.data.access_token;
+  try {
+    const res = await axios.get(
+      "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
+      {
+        headers: { Authorization: `Basic ${auth}` },
+      }
+    );
+
+    //console.log("Token Response:", res.data);
+    //console.log("Generated Token:", res.data.access_token);
+
+    return res.data.access_token;
+  } catch (err) {
+    if (err.response) {
+      console.error("Access Token Error:", {
+        status: err.response.status,
+        data: err.response.data,
+      });
+    } else {
+      console.error("Access Token Error:", err.message);
+    }
+    throw err;
+  }
 }
 
 
-
-// router.post("/stkpush", async (req, res) => {
-//     const { phone, amount, accountReference } = req.body;
-  
-//     //console.log("Incoming payment:", phone, amount, accountReference);
-  
-//     const timestamp = moment().format("YYYYMMDDHHmmss");
-//     const password = Buffer.from(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString("base64");
-
-//     try {
-//       const token = await getAccessToken();
-//       //console.log("Access token:", token);
-  
-//       const stkRes = await axios.post(
-//         "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
-//         {
-//           BusinessShortCode: MPESA_SHORTCODE,
-//           Password: password,
-//           Timestamp: timestamp,
-//           TransactionType: "CustomerPayBillOnline",
-//           Amount: amount,
-//           PartyA: phone,
-//           PartyB: MPESA_SHORTCODE,
-//           PhoneNumber: phone,
-//           CallBackURL: MPESA_CALLBACK_URL,
-//           AccountReference: accountReference || "Payment",
-//           TransactionDesc: "Payment for goods",
-//         },
-//         {
-//           headers: { Authorization: `Bearer ${token}` },
-//         }
-//       );
-  
-//       console.log("STK push success:", stkRes.data);
-//       res.status(200).json({ message: "STK Push initiated", data: stkRes.data });
-//     } catch (err) {
-//       // console.error("STK Error:", err.response?.data || err.message);
-//       if (err.response) {
-//         console.error("STK Error:", {
-//           status: err.response.status,
-//           data: err.response.data,
-//           headers: err.response.headers,
-//         });
-//       } else {
-//         console.error("STK Error:", err.message);
-//       }
-      
-//       res.status(500).json({ message: "STK Push failed", error: err.response?.data });
-//     }
-// });
 router.post("/stkpush", async (req, res) => {
   const { phone, amount, accountReference } = req.body;
 
@@ -86,7 +52,7 @@ router.post("/stkpush", async (req, res) => {
 
   try {
     const token = await getAccessToken();
-
+    //console.log("Bearer Token Used:", token);
     const payload = {
       BusinessShortCode: MPESA_SHORTCODE,
       Password: password,
@@ -101,7 +67,7 @@ router.post("/stkpush", async (req, res) => {
       TransactionDesc: "Payment for goods",
     };
 
-    console.log("Sending STK Payload:", payload);
+    //console.log("Sending STK Payload:", payload);
 
     const stkRes = await axios.post(
       "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
@@ -109,7 +75,6 @@ router.post("/stkpush", async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
         },
       }
     );
@@ -157,6 +122,61 @@ router.post("/callback", async (req, res) => {
     }
   
     res.json({ message: "Callback received" });
+});
+
+
+// router.post("/callback", async (req, res) => {
+  
+//   try {
+//     console.log('📞 Callback endpoint hit');
+//   console.log('Request body:', req.body);
+//     let callbackData;
+
+//     if (Buffer.isBuffer(req.body)) {
+//       const rawBody = req.body.toString('utf8');
+//       callbackData = JSON.parse(rawBody);
+//     } else {
+//       callbackData = req.body;
+//     }
+
+//     console.log('🔔 Incoming callback:', callbackData);
+
+//     const stkCallback = callbackData?.Body?.stkCallback;
+
+//     if (stkCallback?.ResultCode === 0) {
+//       const metadata = stkCallback.CallbackMetadata.Item;
+//       const amount = metadata.find(i => i.Name === 'Amount')?.Value;
+//       const receipt = metadata.find(i => i.Name === 'MpesaReceiptNumber')?.Value;
+//       const phone = metadata.find(i => i.Name === 'PhoneNumber')?.Value;
+//       const date = metadata.find(i => i.Name === 'TransactionDate')?.Value;
+//       const accountReference = stkCallback?.MerchantRequestID; 
+
+//       const paymentRecord = {
+//         mpesaReceiptNumber: receipt,
+//         phoneNumber: phone,
+//         amount: amount,
+//         accountReference,
+//         transactionDate: moment(date, "YYYYMMDDHHmmss").toDate(),
+//       };
+
+//       console.log('✅ Saving payment:', paymentRecord);
+//       await Payment.create(paymentRecord);
+//     } else {
+//       console.log('❌ Payment failed:', stkCallback?.ResultDesc);
+//     }
+
+//     res.json({ message: 'Callback received' });
+//   } catch (error) {
+//     console.error('❌ Error handling callback:', error);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+router.get('/status', async (req, res) => {
+  const { account } = req.query;
+  const payment = await Payment.findOne({ accountReference: account }).sort({ createdAt: -1 });
+  if (!payment) return res.json({ status: 'Pending' });
+  res.json({ status: payment.status }); 
 });
 
 router.get("/payments", async (req, res) => {

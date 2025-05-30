@@ -22,7 +22,8 @@ function GoodProducts() {
 
   const fetchGoodProducts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/products/good');
+      const res = await axios.get(`${process.env.BASE_URL}/api/products/good`);
+      //('http://localhost:5000/api/products/good');
       const unassigned = res.data.filter((p) => !p.assigned);
       setStockInProducts(unassigned);
     } catch (err) {
@@ -32,7 +33,8 @@ function GoodProducts() {
 
   const fetchAssignedProducts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/products/assigned');
+      const res = await axios.get(`${process.env.BASE_URL}/api/products/assigned`);
+      //('http://localhost:5000/api/products/assigned');
       setStockOutProducts(res.data);
     } catch (err) {
       console.error(err);
@@ -44,7 +46,8 @@ function GoodProducts() {
 
     try {
       // Step 1: Get pending products
-      const pendingRes = await axios.get('http://localhost:5000/api/products/pending');
+      const pendingRes = await axios.get(`${process.env.BASE_URL}/api/products/pending`);
+      //('http://localhost:5000/api/products/pending');
       const product = pendingRes.data.find(p => p.barcode === scannedCode.trim());
 
       if (!product) {
@@ -53,7 +56,8 @@ function GoodProducts() {
       }
 
       // Step 2: Mark as 'good'
-      await axios.post(`http://localhost:5000/api/products/test/${product._id}`, {
+      await axios.post(`${process.env.BASE_URL}/api/products/test/${product._id}`, {
+      //(`http://localhost:5000/api/products/test/${product._id}`, {
         status: 'good'
       });
 
@@ -69,7 +73,8 @@ function GoodProducts() {
 
   const fetchGoodProductsCount = () => {
     axios
-      .get('http://localhost:5000/api/products/good-count')
+      .get(`${process.env.BASE_URL}/api/products/good-count`)
+      //('http://localhost:5000/api/products/good-count')
       .then((res) => setGoodProductsCount(res.data.total))
       .catch((err) => console.error('Failed to fetch good products count', err));
   };

@@ -9,7 +9,8 @@ function AssignedProducts() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5000/api/products/assigned')
+      .get(`${process.env.BASE_URL}/api/products/assigned`)
+      //('http://localhost:5000/api/products/assigned')
       .then((res) => setProducts(res.data))
       .catch((err) => console.error(err));
   }, []);

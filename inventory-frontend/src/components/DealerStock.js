@@ -32,7 +32,8 @@ function DealerStock() {
 
   const fetchDealerInvoices = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/dealers/${selectedDealer._id}/invoices`);
+      const res = await axios.get(`${process.env.BASE_URL}/api/dealers/${selectedDealer._id}/invoices`);
+      //(`http://localhost:5000/api/dealers/${selectedDealer._id}/invoices`);
       setDealerInvoices(res.data);
       setShowInvoices(true);
     } catch (err) {
@@ -43,7 +44,8 @@ function DealerStock() {
 
   const handleSaveEdit = async () => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/dealers/${editingDealerId}`, {
+      const res = await axios.put(`${process.env.BASE_URL}/api/dealers/${editingDealerId}`, {
+      //(`http://localhost:5000/api/dealers/${editingDealerId}`, {
         name: editedName
       });
       setDealers(dealers.map(d => d._id === editingDealerId ? res.data : d));
@@ -58,7 +60,8 @@ function DealerStock() {
   const handleDeleteDealer = async (id) => {
     if (!window.confirm('Are you sure you want to delete this dealer?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/dealers/${id}`);
+      await axios.delete(`${process.env.BASE_URL}/api/dealers/${id}`);
+      //(`http://localhost:5000/api/dealers/${id}`);
       setDealers(dealers.filter(d => d._id !== id));
       if (selectedDealer && selectedDealer._id === id) {
         setSelectedDealer(null);
@@ -72,7 +75,8 @@ function DealerStock() {
 
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/dealers')
+    axios.get(`${process.env.BASE_URL}/api/dealers`)
+    //('http://localhost:5000/api/dealers')
       .then(res => setDealers(res.data))
       .catch(err => console.error(err));
   }, []);
@@ -86,23 +90,27 @@ function DealerStock() {
 
     try {
       if (dealer.parentDealer) {
-        const subStockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
+        const subStockRes = await axios.get(`${process.env.BASE_URL}/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
+        //(`http://localhost:5000/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
         setDealerProducts(subStockRes.data);
 
-        const parentStock = await axios.get(`http://localhost:5000/api/dealers/${dealer.parentDealer}/stock`);
+        const parentStock = await axios.get(`${process.env.BASE_URL}/api/dealers/${dealer.parentDealer}/stock`);
+        //(`http://localhost:5000/api/dealers/${dealer.parentDealer}/stock`);
         const alreadyAssigned = subStockRes.data.map(p => p.barcode);
         const available = parentStock.data.filter(p => !alreadyAssigned.includes(p.barcode));
         setAssignableProducts(available);
       } else {
-        const stockRes = await axios.get(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
+        const stockRes = await axios.get(`${process.env.BASE_URL}/api/dealers/${dealer._id}/stock`);
+        //(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
         setDealerProducts(stockRes.data);
 
-        const readyRes = await axios.get('http://localhost:5000/api/products/good');
+        const readyRes = await axios.get(`${process.env.BASE_URL}/api/products/good`);
+        //('http://localhost:5000/api/products/good');
         const unassigned = readyRes.data.filter(p => !p.assigned);
         setAssignableProducts(unassigned);
 
-        // Fetch sub-dealers of this main dealer
-        const subRes = await axios.get(`http://localhost:5000/api/dealers`);
+        const subRes = await axios.get(`${process.env.BASE_URL}/api/dealers`);
+        //(`http://localhost:5000/api/dealers`);
         const subs = subRes.data.filter(d => d.parentDealer === dealer._id);
         setSubDealers(subs);
       }
@@ -117,7 +125,8 @@ function DealerStock() {
     if (!selectedDealer || selectedProducts.length === 0) return;
   
     try {
-      const res = await axios.post('http://localhost:5000/api/products/assign-bulk', {
+      const res = await axios.post(`${process.env.BASE_URL}/api/products/assign-bulk`, {
+      //('http://localhost:5000/api/products/assign-bulk', {
         barcodes: selectedProducts,
         destinationType: 'Dealer',
         destinationId: selectedDealer._id
@@ -126,7 +135,6 @@ function DealerStock() {
       setSelectedProducts([]);
       loadDealerStock(selectedDealer);
   
-      //  No invoice for sub-dealers
       if (!selectedDealer.parentDealer) {
         const { invoiceId } = res.data;
         navigate(`/invoice/${invoiceId}`);
@@ -143,7 +151,8 @@ function DealerStock() {
     if (!selectedDealer || !newDealerName) return;
   
     try {
-      const res = await axios.post(`http://localhost:5000/api/dealers/${selectedDealer._id}/subdealers`, {
+      const res = await axios.post(`${process.env.BASE_URL}/api/dealers/${selectedDealer._id}/subdealers`, {
+      //(`http://localhost:5000/api/dealers/${selectedDealer._id}/subdealers`, {
         name: newDealerName
       });
       setDealers([...dealers, res.data]);
@@ -158,7 +167,6 @@ function DealerStock() {
 
   return (
     <div className="dealer-container">
-      {/* <h2>Dealers</h2> */}
       <h2
         style={{ cursor: selectedDealer ? 'pointer' : 'default' }}
         onClick={() => {
@@ -204,7 +212,8 @@ function DealerStock() {
            <button
              onClick={async () => {
                try {
-                 const res = await axios.post('http://localhost:5000/api/dealers/create', {
+                 const res = await axios.post(`${process.env.BASE_URL}/api/dealers/create`, {
+                 //('http://localhost:5000/api/dealers/create', {
                    name: newDealerName,
                  });
                 setNewDealerName('');
@@ -327,6 +336,10 @@ function DealerStock() {
               <li key={p._id}>{p.barcode} got this stock on {new Date(p.createdAt).toLocaleString()}</li>
             ))}
           </ul>
+          <h3>Warranty Actions for {selectedDealer.name}</h3>
+          <div className="warranty-action">
+          <p>Enjoy using a MOPAWA powerbank because you are covered. Click <Link to='/warranty-policy'>here</Link> to know more about warranty registrations.</p>
+          </div>
           <button onClick={fetchDealerInvoices}>INVOICES</button>
           {showInvoices && (
             <div>
@@ -337,7 +350,8 @@ function DealerStock() {
                   Invoice #{inv.invoiceNumber} - {new Date(inv.createdAt).toLocaleDateString()} - 
                   {/* <a href={`http://localhost:5000/api/invoice/${inv._id}/view`} target="_blank" rel="noopener noreferrer">View PDF</a> |  */}
                   <Link to={`/invoice/${inv._id}`} target="_blank" rel="noopener noreferrer">View </Link> or 
-                  <a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
+                  {/* <a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a> */}
+                  <a href={`${process.env.BASE_URL}/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
                 </li>
               ))}
               </ul>

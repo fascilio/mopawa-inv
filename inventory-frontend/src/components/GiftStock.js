@@ -1,39 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function GiftStock() {
-  const [gifts, setGifts] = useState([]);
-  const [selectedGift, setSelectedGift] = useState('');
-  const [giftProducts, setGiftProducts] = useState([]);
+  const [giftedProducts, setGiftedProducts] = useState([]);
   const [barcode, setBarcode] = useState('');
+  const [goodProducts, setGoodProducts] = useState([]);
 
-  // Fetch all gift destinations
   useEffect(() => {
-    axios.get('http://localhost:5000/api/gifts')
-      .then(res => setGifts(res.data))
+    axios.get(`${process.env.BASE_URL}/api/products/good`)
+    //('http://localhost:5000/api/products/good')
+      .then(res => setGoodProducts(res.data))
       .catch(err => console.error(err));
   }, []);
 
-  // Fetch gift stock
-  const fetchGiftStock = () => {
-    if (!selectedGift) return;
-
-    axios.get(`http://localhost:5000/api/gifts/${selectedGift}/stock`)
-      .then(res => setGiftProducts(res.data))
+  const fetchGiftedProducts = () => {
+    axios.get(`${process.env.BASE_URL}/api/products/gifts`)
+    //('http://localhost:5000/api/products/gifts')
+      .then(res => setGiftedProducts(res.data))
       .catch(err => console.error(err));
   };
 
-  // Assign product to gift
-  const assignProduct = () => {
-    if (!barcode || !selectedGift) return;
+  useEffect(() => {
+    fetchGiftedProducts();
+  }, []);
 
-    axios.post('http://localhost:5000/api/products/assign', {
+  const assignToGift = () => {
+    if (!barcode) return;
+
+    axios.post(`${process.env.BASE_URL}/api/products/gifts`, {
+    //('http://localhost:5000/api/products/gifts', {
       barcode,
       destinationType: 'gift',
-      destinationId: selectedGift,
     }).then(() => {
-      fetchGiftStock();
       setBarcode('');
+      fetchGiftedProducts();
     }).catch(err => {
       console.error(err);
       alert('Assignment failed');
@@ -42,41 +43,36 @@ function GiftStock() {
 
   return (
     <div>
-      <h2>Assign Products to Gift</h2>
+      <h2>Gift Products</h2>
 
-      <select
-        value={selectedGift}
-        onChange={(e) => {
-          setSelectedGift(e.target.value);
-          setGiftProducts([]);
-        }}
-      >
-        <option value="">Select Gift</option>
-        {gifts.map(gift => (
-          <option key={gift._id} value={gift._id}>
-            {gift.name}
-          </option>
-        ))}
-      </select>
-
-      <button onClick={fetchGiftStock}>View Gift Stock</button>
-
-      <br /><br />
-
-      <input
+      {/* <input
         type="text"
-        placeholder="Enter barcode to assign"
+        placeholder="Enter barcode from good products"
         value={barcode}
         onChange={(e) => setBarcode(e.target.value)}
+      /> */}
+      <input
+        type="text"
+        placeholder="Scan or enter barcode"
+        value={barcode}
+        onChange={(e) => setBarcode(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') assignToGift();
+        }}
+        autoFocus
       />
-      <button onClick={assignProduct}>Assign to Gift</button>
+      {/* <button onClick={assignToGift}>Gift Product</button> */}
 
-      <h3>Gift Stock</h3>
+      <h3>Already Gifted</h3>
       <ul>
-        {giftProducts.map(p => (
+        {giftedProducts.map(p => (
           <li key={p._id}>{p.barcode}</li>
         ))}
       </ul>
+      <h3>Warranty Actions </h3>
+      <div className="warranty-action">
+      <p>Enjoy using a MOPAWA powerbank because you are covered. Click <Link to='/warranty-policy'>here</Link> to know more about warranty registrations.</p>
+      </div>
     </div>
   );
 }

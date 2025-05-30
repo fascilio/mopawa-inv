@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './RetailerStock.css';
 import { Link } from 'react-router-dom';
-//import WarantyPolicy from '../Warranty/Warranty';
+import MpesaForm from './MpesaForm'
 
 function RetailerStock() {
   const [retailers, setRetailers] = useState([]);
@@ -22,16 +22,19 @@ function RetailerStock() {
   const [dateFilter, setDateFilter] = useState('');
   const [retailerInvoices, setRetailerInvoices] = useState([]);
   const [showInvoices, setShowInvoices] = useState(false);
+  const [showReadyProducts, setShowReadyProducts] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/retailers')
+    axios.get(`${process.env.BASE_URL}/api/retailers`)
+    //('http://localhost:5000/api/retailers')
       .then(res => setRetailers(res.data))
       .catch(err => console.error(err));
    }, []);
 
   useEffect(() => {
     if (selectedRetailer && selectedRetailer.isTeamLeader) {
-      axios.get(`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`)
+      axios.get(`${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`)
+      //(`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`)
         .then(response => {
           setRetailers(response.data);
         })
@@ -40,7 +43,8 @@ function RetailerStock() {
           setRetailers([]); 
         });
     } else {
-      axios.get('http://localhost:5000/api/retailers')
+      axios.get(`${process.env.BASE_URL}/api/retailers`)
+      //('http://localhost:5000/api/retailers')
         .then(res => setRetailers(res.data))
         .catch(err => console.error(err));
     }
@@ -49,7 +53,8 @@ function RetailerStock() {
 
   const fetchRetailStock = (retailerId) => {
     if (!retailerId) return;
-    axios.get(`http://localhost:5000/api/retailers/${retailerId}/stock`)
+    axios.get(`${process.env.BASE_URL}/api/retailers/${retailerId}/stock`)
+    //(`http://localhost:5000/api/retailers/${retailerId}/stock`)
       .then(res => setRetailProducts(res.data))
       .catch(err => console.error(err));
   };
@@ -61,7 +66,8 @@ function RetailerStock() {
 
   const fetchRetailerInvoices = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/retailers/${selectedRetailer._id}/invoices`);
+      const res = await axios.get(`${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/invoices`);
+      //(`http://localhost:5000/api/retailers/${selectedRetailer._id}/invoices`);
       setRetailerInvoices(res.data);
       setShowInvoices(true);
     } catch (err) {
@@ -76,13 +82,13 @@ function RetailerStock() {
     fetchRetailStock(id);  
   };
 
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/products/good')
-      .then(res => {
-        const unassigned = res.data.filter(p => !p.assigned);
-        setReadyProducts(unassigned);
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios.get('http://localhost:5000/api/products/good')
+  //     .then(res => {
+  //       const unassigned = res.data.filter(p => !p.assigned);
+  //       setReadyProducts(unassigned);
+  //     });
+  // }, []);
 
   const handleProductToggle = (barcode) => {
     if (selectedProducts.includes(barcode)) {
@@ -96,7 +102,8 @@ function RetailerStock() {
     if (!selectedRetailer || selectedProducts.length === 0) return;
   
     try {
-      const res = await axios.post('http://localhost:5000/api/products/assign-bulk', {
+      const res = await axios.post(`${process.env.BASE_URL}/api/products/assign-bulk`, {
+      //('http://localhost:5000/api/products/assign-bulk', {
         barcodes: selectedProducts,
         destinationType: 'Retailer',
         destinationId: selectedRetailer,
@@ -113,23 +120,23 @@ function RetailerStock() {
     }
   };
 
-  // const handleDeleteRetailer = async (retailerId) => {
-  //   if (!window.confirm('Are you sure you want to delete this retailer?')) return;
-  
-  //   try {
-  //     await axios.delete(`http://localhost:5000/api/retailers/${retailerId}`);
-  //     // Refresh the list after deletion
-  //     const refreshed = await axios.get(`http://localhost:5000/api/retailers`);
-  //     setRetailers(refreshed.data);
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert('Failed to delete retailer');
-  //   }
-  // };  
-
+  const loadReadyProducts = async () => {
+    try {
+      const res = await axios.get(`${process.env.BASE_URL}/api/products/good`);
+      //('http://localhost:5000/api/products/good');
+      const unassigned = res.data.filter(p => !p.assigned);
+      setReadyProducts(unassigned);
+    } catch (err) {
+      console.error('Failed to load ready products:', err);
+      alert('Could not load ready products');
+    }
+  };
+  const handleCategoryClick = () => {
+    loadReadyProducts(); 
+    setShowReadyProducts(true); 
+  };
   return (
     <div className="retailer-container">
-      {/* <h2 className="retailer-title">Assign Products to Retailer/Sales Agent</h2> */}
       <h2
         className="retailer-title"
         style={{ cursor: 'pointer' }}
@@ -143,7 +150,6 @@ function RetailerStock() {
         Retailers/Sales Agent
       </h2>
 
-      {/* Search and Date Filter */}
       <div style={{ marginBottom: '1rem' }}>
         <input
           type="text"
@@ -185,13 +191,6 @@ function RetailerStock() {
             placeholder="Retailer name"
             className="add-retailer-input"
           />
-          {/* <input
-            type="text"
-            value={newRetailerPhone}
-            onChange={(e) => setNewRetailerPhone(e.target.value)}
-            placeholder='enter your phone number'
-            className='add-retailer-input'
-          /> */}
 
           <div>
             <input
@@ -225,7 +224,8 @@ function RetailerStock() {
           <button
             onClick={async () => {
               try {
-                const res = await axios.post('http://localhost:5000/api/retailers/create', {
+                const res = await axios.post(`${process.env.BASE_URL}/api/retailers/create`, {
+                //('http://localhost:5000/api/retailers/create', {
                   name: newRetailerName,
                   isTeamLeader,
                   teamLeaderId: isTeamLeader ? null : teamLeaderId
@@ -246,16 +246,6 @@ function RetailerStock() {
           </button>
         </div>
       )}
-
-      {/* {!selectedRetailer && (
-        <div className="retailer-list">
-          {retailers
-            .filter(r => r.isTeamLeader)
-            .map((r) => (
-              <button onClick={() => handleSelectRetailer(r._id)}>{r.name}</button>
-          ))}
-        </div>
-      )} */}
       <div className="retailer-list">
         {retailers
           .filter(r =>
@@ -270,70 +260,114 @@ function RetailerStock() {
       </div>
 
       {selectedRetailer && (
+        <div className="product-category-boxes" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div
+            onClick={loadReadyProducts}
+            style={{
+              flex: 1,
+              padding: '20px',
+              border: '2px solid #007bff',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              textAlign: 'center',
+              backgroundColor: '#f0f8ff',
+            }}
+          >
+            <h3>MP5P0</h3>
+            <p>Click to view available products</p>
+            <ul className="assign-list">
+              {readyProducts.map(p => (
+                <li key={p._id}>
+                  <input
+                    type="checkbox"
+                    checked={selectedProducts.includes(p.barcode)}
+                    onChange={() => handleProductToggle(p.barcode)}
+                  />
+                  {p.barcode}
+                </li>
+              ))}
+            </ul>
+            <button onClick={assignBulkProducts} className="assign-button">Confirm</button>
+          </div>
+
+          <div style={{
+            flex: 1,
+            padding: '20px',
+            border: '2px dashed #ccc',
+            borderRadius: '10px',
+            textAlign: 'center',
+            color: '#999'
+          }}>
+            <h3>Future Category</h3>
+          </div>
+
+          <div style={{
+            flex: 1,
+            padding: '20px',
+            border: '2px dashed #ccc',
+            borderRadius: '10px',
+            textAlign: 'center',
+            color: '#999'
+          }}>
+            <h3>Future Category</h3>
+          </div>
+        </div>
+      )}
+      {selectedRetailer && (
         <>
           <div className="assign-section">
-          <h3 className="assign-title">Assign Product to {selectedRetailer.name}</h3>
-            {/* <input
-              type="text"
-              placeholder="Enter barcode"
-              value={barcode}
-              onChange={(e) => setBarcode(e.target.value)}
-              className="assign-input"
-            /> */}<button
-        style={{
-          backgroundColor: 'red',
-          color: 'white',
-          border: 'none',
-          padding: '6px 12px',
-          cursor: 'pointer',
-          borderRadius: '4px',
-        }}
-        onClick={async () => {
-          if (window.confirm(`Are you sure you want to delete ${selectedRetailer.name}?`)) {
-            try {
-              await axios.delete(`http://localhost:5000/api/retailers/${selectedRetailer._id}`);
-              setSelectedRetailer(null);
-              const refreshed = await axios.get('http://localhost:5000/api/retailers');
-              setRetailers(refreshed.data);
-              setRetailProducts([]);
-              setSelectedProducts([]);
-            } catch (err) {
-              console.error(err);
-              alert('Failed to delete retailer');
-            }
-          }
-        }}
-        // onClick={handleDeleteRetailer}
-      >
-        Delete {selectedRetailer.name}
-      </button>
-            <div className="assign-input-group">
-            <h3>Select Products to Assign:</h3>
-              <ul className="assign-list">
-                {readyProducts.map(p => (
-                  <li key={p._id}>
-                    <input
-                      type="checkbox"
-                      checked={selectedProducts.includes(p.barcode)}
-                      onChange={() => handleProductToggle(p.barcode)}
-                    />
-                    {p.barcode}
-                  </li>
-                ))}
-              </ul> <br/>
+            <h3 className="assign-title">Assign Product to {selectedRetailer.name}</h3>
+            <button
+              style={{
+                backgroundColor: 'red',
+                color: 'white',
+                border: 'none',
+                padding: '6px 12px',
+                cursor: 'pointer',
+                borderRadius: '4px',
+              }}
+              onClick={async () => {
+                if (window.confirm(`Are you sure you want to delete ${selectedRetailer.name}?`)) {
+                  try {
+                    await axios.delete(`${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}`);
+                    //(`http://localhost:5000/api/retailers/${selectedRetailer._id}`);
+                    setSelectedRetailer(null);
+                    const refreshed = await axios.get(`${process.env.BASE_URL}/api/retailers`);
+                    //('http://localhost:5000/api/retailers');
+                    setRetailers(refreshed.data);
+                    setRetailProducts([]);
+                    setSelectedProducts([]);
+                  } catch (err) {
+                    console.error(err);
+                    alert('Failed to delete retailer');
+                  }
+                }
+              }}
+            >
+            Delete {selectedRetailer.name}
+            </button>
+            {/*<div className="assign-input-group">
+              <h3>Select Products to Assign:</h3>
+                 <ul className="assign-list">
+                  {readyProducts.map(p => (
+                    <li key={p._id}>
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.includes(p.barcode)}
+                        onChange={() => handleProductToggle(p.barcode)}
+                      />
+                      {p.barcode}
+                    </li>
+                  ))}
+                </ul> <br/> 
               <button onClick={assignBulkProducts} className="assign-button">Confirm</button>
-          </div>
+            </div>*/}
           </div>
 
           <h3 className="stock-title">Retailer Stock</h3>
           {retailProducts.length === 0 ? (
             <p>No products assigned yet.</p>
           ) : (
-            // <ul className="list-disc ml-5">
-            //   {retailProducts.map((p) => (
-            //     <li key={p._id}>{p.barcode}</li>
-            //   ))}
-            // </ul>
             <ul className="list-disc ml-5">
               {retailProducts
                 .filter(p => 
@@ -345,99 +379,40 @@ function RetailerStock() {
                 ))}
             </ul>
           )}
-          {/* <button onClick={fetchRetailerInvoices}>INVOICES</button> */}
           {selectedRetailer && (
-  <button
-    onClick={fetchRetailerInvoices}
-    className="retailer-button"
-    style={{ marginTop: '1rem' }}
-  >
-    View Invoices
-  </button>
-)}
-
-            {/* {showInvoices && (
-              <div>
-                <h4>Invoices for {selectedRetailer.name}</h4>
+            <button
+              onClick={fetchRetailerInvoices}
+              className="retailer-button"
+              style={{ marginTop: '1rem' }}
+            >
+              View Invoices
+            </button>
+          )}
+          {showInvoices && (
+            <div className="invoice-list">
+              <h3>Invoices</h3>
+              {retailerInvoices.length === 0 ? (
+                <p>No invoices found.</p>
+              ) : (
                 <ul>
-                  {retailerInvoices.map(inv => (
-                    <li key={inv._id}>
-                      Invoice #{inv.invoiceNumber} - {new Date(inv.createdAt).toLocaleDateString()} - 
-                      <Link to={`/invoice/${inv._id}`} target="_blank" rel="noopener noreferrer">View </Link> or 
-                      <a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
+                  {retailerInvoices.map(invoice => (
+                    <li key={invoice._id}>
+                      <Link to={`/invoice/${invoice._id}`}>Invoice #{invoice._id}</Link>
                     </li>
                   ))}
                 </ul>
-              </div>
-            )} */}
-            {showInvoices && (
-  <div className="invoice-list">
-    <h3>Invoices</h3>
-    {retailerInvoices.length === 0 ? (
-      <p>No invoices found.</p>
-    ) : (
-      <ul>
-        {retailerInvoices.map(invoice => (
-          <li key={invoice._id}>
-            <Link to={`/invoice/${invoice._id}`}>Invoice #{invoice._id}</Link>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-)}
+              )}
+            </div>
+          )}
 
           <div className="warranty-section">
-            {/* <h3>Warranty Actions for {retailers.find(r => r._id === selectedRetailer)?.name}</h3> */}
             <h3>Warranty Actions for {selectedRetailer.name}</h3>
 
             <div className="warranty-action">
             <p>Enjoy using a MOPAWA powerbank because you are covered. Click <Link to='/warranty-policy'>here</Link> to know more about warranty registrations.</p>
-            
-              {/* <input
-                type="text"
-                placeholder="Enter product barcode"
-                value={barcode}
-                onChange={(e) => setBarcode(e.target.value)}
-              /> */}
-              {/* <a href="/warranty-policy" className="warranty-policy-link">📄 View Warranty Policy</a> */}
-              {/* <button
-                onClick={async () => {
-                  try {0000000000
-                    await axios.post('http://localhost:5000/api/warranty/register', {
-                      barcode,
-                      registeredBy: 'Retailer',
-                      retailerId: selectedRetailer
-                    });
-                    alert('Warranty registered successfully!');
-                    setBarcode('');
-                  } catch (err) {
-                    console.error(err);
-                    alert('Warranty registration failed.');
-                  }
-                }}
-              >
-                Register Warranty
-              </button> */}
-
-              {/* <button
-                onClick={async () => {
-                  try {
-                    await axios.post('http://localhost:5000/api/warranty/claim', {
-                      barcode,
-                      claimedBy: 'Retailer',
-                      retailerId: selectedRetailer
-                    });
-                    alert('Warranty claim submitted!');
-                    setBarcode('');
-                  } catch (err) {
-                    console.error(err);
-                    alert('Warranty claim failed.');
-                  }
-                }}
-              >
-                Claim Warranty
-              </button> */}
+            </div>
+            <div>
+              <MpesaForm />
             </div>
           </div>
           {selectedRetailer?.isTeamLeader && (
@@ -450,23 +425,18 @@ function RetailerStock() {
                 onChange={(e) => setNewRetailerName(e.target.value)}
                 className="add-retailer-input"
               />
-              {/* <input
-                type="text"
-                value={newRetailerPhone}
-                onChange={(e) => setNewRetailerPhone(e.target.value)}
-                placeholder='enter your phone number'
-                className='add-retailer-input'
-                /> */}
               <button
                 onClick={async () => {
                   try {
                     const res = await axios.post(
-                      `http://localhost:5000/api/retailers/${selectedRetailer._id}/team-member`,
+                      `${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/team-member`,
+                      //`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-member`,
                       { name: newRetailerName }
                     );
                     setNewRetailerName('');
                     const refreshed = await axios.get(
-                      `http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`
+                      `${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`
+                      //`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`
                     );
                     setRetailers(refreshed.data);
                   } catch (err) {
@@ -478,16 +448,6 @@ function RetailerStock() {
               >
                 Add Sub-Retailer
               </button>
-              {/* {selectedRetailer.isTeamLeader && (
-                <div className="team-members">
-                  <h2>Team Members of {selectedRetailer.name}</h2>
-                  <ul>
-                  {retailers.map(member => (
-                    <li key={member._id}>{member.name}</li>
-                  ))}
-                  </ul>
-                </div>
-              )} */}
               {selectedRetailer?.isTeamLeader && (
                 <div className="retailer-list">
                   {retailers

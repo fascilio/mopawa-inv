@@ -10,7 +10,8 @@ function AssignProducts() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/${destinationType}s`)
+      .get(`${process.env.BASE_URL}/api/${destinationType}s`)
+      //.get(`http://localhost:5000/api/${destinationType}s`)
       .then((res) => setDestinations(res.data))
       .catch((err) => {
         console.error('❌ Failed to fetch destinations:', err);
@@ -44,7 +45,8 @@ function AssignProducts() {
     console.log('📦 Sending assignment request:', payload);
   
     try {
-      await axios.post('http://localhost:5000/api/products/assign', payload, {
+      await axios.post(`${process.env.BASE_URL}/api/products/assign`, payload, {
+      // .post('http://localhost:5000/api/products/assign', payload, {
         headers: {
           'Content-Type': 'application/json',
         },

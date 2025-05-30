@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const Invoice = require('../models/Invoice');
+// const Sample = require('../models/Samples');
 
 router.post('/receive', async (req, res) => {
   console.log('Received barcode:', req.body);
@@ -201,22 +202,42 @@ router.post('/assign-bulk', async (req, res) => {
 
 
 // GET /api/products/assigned
+// router.get('/assigned', async (req, res) => {
+//   try {
+//     const assignedProducts = await Product.find({ assigned: true }).populate('assignedTo');
+//     res.json(assignedProducts);
+//   } catch (err) {
+//     res.status(500).json({ error: 'Failed to fetch assigned products' });
+//   }
+// });
 router.get('/assigned', async (req, res) => {
   try {
-    const assignedProducts = await Product.find({ assigned: true }).populate('assignedTo');
-    res.json(assignedProducts);
+    // Fetch all assigned products
+    const products = await Product.find({ assigned: true, assignedType: { $exists: true, $ne: null } });
+
+    // Separate into ones that can be populated and ones that cannot
+    const canPopulate = products.filter(p => ['Dealer', 'Retailer'].includes(p.assignedType));
+    const cannotPopulate = products.filter(p => !['Dealer', 'Retailer'].includes(p.assignedType));
+
+    // Populate those that can
+    const populated = await Product.populate(canPopulate, { path: 'assignedTo' });
+
+    // Combine back
+    const combined = [...populated, ...cannotPopulate];
+
+    res.json(combined);
   } catch (err) {
+    console.error('Error fetching assigned products:', err);
     res.status(500).json({ error: 'Failed to fetch assigned products' });
   }
 });
 
-  // GET good products
+
 router.get('/good', async (req, res) => {
     const products = await Product.find({ status: 'good' });
     res.json(products);
 });
 
-  // GET bad (maintenance) products
   router.get('/bad', async (req, res) => {
     const products = await Product.find({ status: 'bad' });
     res.json(products);
@@ -261,7 +282,6 @@ router.put('/:id/mark-good', async (req, res) => {
   }
 });
 
-// routes or controller file
 router.get('/testing-count', async (req, res) => {
   try {
     const total = await Product.countDocuments({ status: 'pending' });
@@ -272,7 +292,6 @@ router.get('/testing-count', async (req, res) => {
   }
 });
 
-// GET /api/products/maintenance-out
 router.get('/maintenance-out', async (req, res) => {
   try {
     const repaired = await Product.find({ wasUnderMaintenance: true, status: 'good' });
@@ -282,7 +301,6 @@ router.get('/maintenance-out', async (req, res) => {
   }
 });
 
-// GET all products that have ever been in maintenance
 router.get('/maintenance-count', async (req, res) => {
   try {
     const total = await Product.countDocuments({ status: 'bad' });
@@ -292,7 +310,6 @@ router.get('/maintenance-count', async (req, res) => {
   }
 });
 
-// Count: Ready for market (Good)
 router.get('/good-count', async (req, res) => {
   try {
     const total = await Product.countDocuments({ status: 'good', assigned: false });
@@ -301,5 +318,115 @@ router.get('/good-count', async (req, res) => {
     res.status(500).json({ message: 'Error fetching good product count' });
   }
 });
+
+
+// // POST /api/products/samples - Create new sample destination
+// router.post('/samples', async (req, res) => {
+//   const { barcode } = req.body;
+//   if (!barcode) return res.status(400).json({ message: 'barcode is required' });
+
+//   try {
+//     const existing = await Sample.findOne({ barcode });
+//     if (existing) return res.status(400).json({ message: 'Sample already exists' });
+
+//     const sample = new Sample({ barcode });
+//     await sample.save();
+//     res.status(201).json(sample);
+//   } catch (err) {
+//     console.error('Error creating sample:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+
+router.post('/samples', async (req, res) => {
+  const { barcode } = req.body;
+
+  try {
+    const product = await Product.findOne({ barcode, assigned: false });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    product.assigned = true;
+    product.status = 'assigned'; 
+    product.assignedType = "Sample"; 
+    product.assignedAt = new Date();
+
+    await product.save();
+
+    res.json({ message: 'Product assigned to sample successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// GET /api/products/samples - Get all sample destinations
+// router.get('/samples', async (req, res) => {
+//   try {
+//     const samples = await Sample.find().sort({ name: 1 });
+//     res.json(samples);
+//   } catch (err) {
+//     console.error('Error fetching samples:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+router.get('/samples', async (req, res) => {
+  try {
+    const sampleProducts = await Product.find({ assigned: true, assignedType: 'Sample' });
+    res.json(sampleProducts);
+  } catch (err) {
+    console.error('Error fetching sample products:', err);
+    res.status(500).json({ error: 'Failed to fetch sample products' });
+  }
+});
+
+router.get('/samples/:sampleId/stock', async (req, res) => {
+  try {
+    const { sampleId } = req.params;
+    const products = await Product.find({
+      assignedType: 'Sample',
+      assignedTo: sampleId
+    });
+    res.json(products);
+  } catch (err) {
+    console.error('Error fetching sample stock:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.post('/gifts', async (req, res) => {
+  const { barcode } = req.body;
+
+  try {
+    const product = await Product.findOne({ barcode, assigned: false });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found or already assigned' });
+    }
+
+    product.assigned = true;
+    product.assignedType = 'Gift';
+    await product.save();
+
+    res.json({ message: 'Product gifted successfully' });
+  } catch (err) {
+    console.error('Error gifting product:', err);
+    res.status(500).json({ error: 'Failed to gift product' });
+  }
+});
+
+router.get('/gifts', async (req, res) => {
+  try {
+    const gifts = await Product.find({ assigned: true, assignedType: 'Gift' });
+    res.json(gifts);
+  } catch (err) {
+    console.error('Error fetching gifted products:', err);
+    res.status(500).json({ error: 'Failed to fetch gifted products' });
+  }
+});
+
  
 module.exports = router;

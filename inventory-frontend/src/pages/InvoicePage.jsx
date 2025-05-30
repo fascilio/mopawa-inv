@@ -12,7 +12,8 @@ function InvoicePage() {
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/invoice/${invoiceId}`);
+        const res = await axios.get(`${process.env.BASE_URL}/api/invoice/${invoiceId}`);
+        //(`http://localhost:5000/api/invoice/${invoiceId}`);
         setInvoice(res.data);
       } catch (err) {
         console.error('Failed to fetch invoice', err);
@@ -61,55 +62,25 @@ function InvoicePage() {
           <p><strong>To:</strong> {invoice.customer.name}</p>
           <p>Customer Type: {invoice.customerType}</p>
         </section>
-
-        {/*<section className="product-list">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                  <th>Description</th>
-                <th>Unit Price</th>
-               <th>Quantity</th> */}
-                {/*<th>Barcode</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoice.products.map((p, i) => (
-                <tr key={p._id}>
-                  <td>{i + 1}</td>
-                   <td>{p.description}</td>
-                  <td>{p.unitPrice}</td>
-                  <td>{p.quantity}</td> 
-                  <td>{p.barcode}</td>
-                  <td>{p.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="total">Total Items: {invoice.totalItems}</p>
-        </section>*/}
         <section className="product-list">
           <table>
             <thead>
               <tr>
                 <th>#</th>
-                <th>Barcode</th>
-                <th>Status</th>
                 <th>Description</th>
                 <th>Unit Price (Ksh)</th>
+                <th>Quantity</th>
+                <th>Total (Ksh)</th>
               </tr>
             </thead>
             <tbody>
-              {invoice.products.map((p, i) => (
-                <tr key={p._id}>
-                  <td>{i + 1}</td>
-                  <td>{p.barcode}</td>
-                  <td>{p.status}</td>
-                  <td>5000mAh Power Bank</td>
-                  <td>1000</td>
-                </tr>
-              ))}
+              <tr>
+                <td>1</td>
+                <td>5000mAh Power Bank</td>
+                <td>1000</td>
+                <td>{invoice.totalItems}</td>
+                <td>{invoice.totalItems * 1000}</td>
+              </tr>
             </tbody>
           </table>
 
