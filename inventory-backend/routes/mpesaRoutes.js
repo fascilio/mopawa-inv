@@ -125,54 +125,7 @@ router.post("/callback", async (req, res) => {
 });
 
 
-// router.post("/callback", async (req, res) => {
-  
-//   try {
-//     console.log('📞 Callback endpoint hit');
-//   console.log('Request body:', req.body);
-//     let callbackData;
-
-//     if (Buffer.isBuffer(req.body)) {
-//       const rawBody = req.body.toString('utf8');
-//       callbackData = JSON.parse(rawBody);
-//     } else {
-//       callbackData = req.body;
-//     }
-
-//     console.log('🔔 Incoming callback:', callbackData);
-
-//     const stkCallback = callbackData?.Body?.stkCallback;
-
-//     if (stkCallback?.ResultCode === 0) {
-//       const metadata = stkCallback.CallbackMetadata.Item;
-//       const amount = metadata.find(i => i.Name === 'Amount')?.Value;
-//       const receipt = metadata.find(i => i.Name === 'MpesaReceiptNumber')?.Value;
-//       const phone = metadata.find(i => i.Name === 'PhoneNumber')?.Value;
-//       const date = metadata.find(i => i.Name === 'TransactionDate')?.Value;
-//       const accountReference = stkCallback?.MerchantRequestID; 
-
-//       const paymentRecord = {
-//         mpesaReceiptNumber: receipt,
-//         phoneNumber: phone,
-//         amount: amount,
-//         accountReference,
-//         transactionDate: moment(date, "YYYYMMDDHHmmss").toDate(),
-//       };
-
-//       console.log('✅ Saving payment:', paymentRecord);
-//       await Payment.create(paymentRecord);
-//     } else {
-//       console.log('❌ Payment failed:', stkCallback?.ResultDesc);
-//     }
-
-//     res.json({ message: 'Callback received' });
-//   } catch (error) {
-//     console.error('❌ Error handling callback:', error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-router.get('/status', async (req, res) => {
+router.get("/status", async (req, res) => {
   const { account } = req.query;
   const payment = await Payment.findOne({ accountReference: account }).sort({ createdAt: -1 });
   if (!payment) return res.json({ status: 'Pending' });

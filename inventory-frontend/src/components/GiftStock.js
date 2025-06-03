@@ -8,14 +8,14 @@ function GiftStock() {
   const [goodProducts, setGoodProducts] = useState([]);
 
   useEffect(() => {
-    axios.get(`${process.env.BASE_URL}/api/products/good`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/good`)
     //('http://localhost:5000/api/products/good')
       .then(res => setGoodProducts(res.data))
       .catch(err => console.error(err));
   }, []);
 
   const fetchGiftedProducts = () => {
-    axios.get(`${process.env.BASE_URL}/api/products/gifts`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/gifts`)
     //('http://localhost:5000/api/products/gifts')
       .then(res => setGiftedProducts(res.data))
       .catch(err => console.error(err));
@@ -28,7 +28,7 @@ function GiftStock() {
   const assignToGift = () => {
     if (!barcode) return;
 
-    axios.post(`${process.env.BASE_URL}/api/products/gifts`, {
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/products/gifts`, {
     //('http://localhost:5000/api/products/gifts', {
       barcode,
       destinationType: 'gift',

@@ -12,7 +12,7 @@ function InvoicePage() {
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const res = await axios.get(`${process.env.BASE_URL}/api/invoice/${invoiceId}`);
+        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/invoice/${invoiceId}`);
         //(`http://localhost:5000/api/invoice/${invoiceId}`);
         setInvoice(res.data);
       } catch (err) {
@@ -67,7 +67,7 @@ function InvoicePage() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Description</th>
+                <th>Type</th>
                 <th>Unit Price (Ksh)</th>
                 <th>Quantity</th>
                 <th>Total (Ksh)</th>
@@ -76,7 +76,7 @@ function InvoicePage() {
             <tbody>
               <tr>
                 <td>1</td>
-                <td>5000mAh Power Bank</td>
+                <td>MPO501</td>
                 <td>1000</td>
                 <td>{invoice.totalItems}</td>
                 <td>{invoice.totalItems * 1000}</td>

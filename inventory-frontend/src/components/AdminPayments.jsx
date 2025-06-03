@@ -9,7 +9,7 @@ const AdminPayments = () => {
     const fetchPayments = async () => {
       try {
         //const res = await axios.get("http://localhost:5000/api/mpesa/payments");
-        const res = await axios.get(`${process.env.BASE_URL}/api/mpesa/payments`);
+        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/mpesa/payments`);
         setPayments(res.data);
         setLoading(false);
       } catch (error) {

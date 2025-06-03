@@ -10,7 +10,7 @@ function SampleStock() {
   const [success, setSuccess] = useState('');
 
   const fetchSampleProducts = () => {
-    axios.get(`${process.env.BASE_URL}/api/products/samples`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/samples`)
     //('http://localhost:5000/api/products/samples')
       .then(res => {
         console.log("Sample products:", res.data); 
@@ -20,7 +20,7 @@ function SampleStock() {
   };
 
   useEffect(() => {
-    axios.get(`${process.env.BASE_URL}/api/products/good`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/good`)
     //('http://localhost:5000/api/products/good')
       .then(res => {
         const unassigned = res.data.filter(p => !p.assigned);
@@ -49,7 +49,7 @@ function SampleStock() {
       return;
     }
 
-    axios.post(`${process.env.BASE_URL}/api/products/samples`, {
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/products/samples`, {
     //('http://localhost:5000/api/products/samples', {
       barcode: trimmed,
       destinationType: 'Sample',

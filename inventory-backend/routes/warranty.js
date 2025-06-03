@@ -39,39 +39,6 @@ async function sendSMS(phone, message) {
   }
 }
 
-// router.post("/register", async (req, res) => {
-//     const { phone_number, serial_number } = req.body;
-  
-//     const exists = registrations.find(
-//       (r) => r.phone_number === phone_number && r.serial_number === serial_number
-//     );
-//     if (exists) {
-//       return res.status(400).json({ message: "Already registered." });
-//     }
-  
-//   //   registrations.push({
-//   //     phone_number,
-//   //     serial_number,
-//   //     registeredAt: new Date(),
-//   //   });
-  
-//   registrations.push({
-//       id: registrations.length + 1,
-//       phone_number,
-//       serial_number,
-//       registeredAt: new Date(),
-//       warrantyStatus: "active",
-//       claimed: false
-//     });
-    
-  
-//     await sendSMS(
-//       phone_number,
-//       "Thank you. You have successfully registered your new power bank."
-//     );
-  
-//     return res.status(200).json({ message: "Registered successfully." });
-//   });
 
 router.post("/register", async (req, res) => {
   const { phone_number, serial_number } = req.body;
@@ -110,7 +77,7 @@ router.post("/register", async (req, res) => {
 });
 
 
-router.post("/getWarrantySms", async (req, res) => {
+router.post("/claimWarranty", async (req, res) => {
     const { phoneNumber, serialNumber } = req.body;
   
     const record = registrations.find(
@@ -141,73 +108,6 @@ router.post("/getWarrantySms", async (req, res) => {
     return res.status(200).json({ message: "OTP sent." });
 });
 
-// router.post("/verifyOtp", (req, res) => {
-//     const { phoneNumber, otp } = req.body;
-//     const record = otpStore[phoneNumber];
-//     const registration = registrations.find(r =>
-//       r.phone_number === phoneNumber
-//     );
-        
-
-//     if (registration) {
-//       registration.claimed = true; 
-//       registration.claimDate = new Date();
-//     }
-    
-  
-//     if (!record) {
-//       return res.status(400).json({ message: "OTP not requested." });
-//     }
-//         console.log("Stored OTP:", record.otp, "Type:", typeof record.otp);
-//         console.log("Received OTP:", otp, "Type:", typeof otp);
-//     // if (record.otp !== otp) {
-//     //   return res.status(400).json({ message: "Invalid OTP." });
-//     // }
-//     if (String(record.otp) !== String(otp)) {
-//       return res.status(400).json({ message: "Invalid OTP." });
-//     }
-    
-  
-//     if (Date.now() > record.expiresAt) {
-//       return res.status(400).json({ message: "OTP expired." });
-//     }
-
-  
-//     delete otpStore[phoneNumber];
-  
-//     return res.status(200).json({ message: "OTP verified. You may claim warranty." });
-// });
-// router.post("/verifyOtp", (req, res) => {
-//   const { phoneNumber, otp } = req.body;
-
-//   console.log("Received phoneNumber:", phoneNumber);
-//   console.log("Received OTP:", otp);
-  
-//   const record = otpStore[phoneNumber];
-//   if (!record) {
-//     return res.status(400).json({ message: "OTP not requested." });
-//   }
-
-//   console.log("Stored OTP:", record.otp, "Type:", typeof record.otp);
-//   console.log("Received OTP:", otp, "Type:", typeof otp);
-
-//   if (String(record.otp).trim() !== String(otp).trim()) {
-//     return res.status(400).json({ message: "Invalid OTP." });
-//   }
-
-//   if (Date.now() > record.expiresAt) {
-//     return res.status(400).json({ message: "OTP expired." });
-//   }
-
-//   const registration = registrations.find(r => r.phone_number === phoneNumber);
-//   if (registration) {
-//     registration.claimed = true;
-//     registration.claimDate = new Date();
-//   }
-
-//   delete otpStore[phoneNumber];
-//   return res.status(200).json({ message: "OTP verified. You may claim warranty." });
-// });
 
 router.post("/verifyOtp", (req, res) => {
   const { phoneNumber, otp } = req.body;
@@ -255,25 +155,25 @@ router.get("/notifications", async (req, res) => {
   }
 });
 
-router.post('/claim', async (req, res) => {
-  const { phoneNumber, serialNumber } = req.body;
+// router.post('/claim', async (req, res) => {
+//   const { phoneNumber, serialNumber } = req.body;
 
-  try {
-    const message = `Warranty claim made by ${phoneNumber} for product ${serialNumber}`;
-    const notification = new Notification({
-      phoneNumber,
-      serialNumber,
-      type: 'warranty-claim',
-      message,
-    });
-    await notification.save();
+//   try {
+//     const message = `Warranty claim made by ${phoneNumber} for product ${serialNumber}`;
+//     const notification = new Notification({
+//       phoneNumber,
+//       serialNumber,
+//       type: 'warranty-claim',
+//       message,
+//     });
+//     await notification.save();
 
-    res.status(201).json({ message: 'Warranty claim submitted successfully.' });
-  } catch (err) {
-    console.error('Claim failed:', err);
-    res.status(500).json({ error: 'Server error during claim.' });
-  }
-});
+//     res.status(201).json({ message: 'Warranty claim submitted successfully.' });
+//   } catch (err) {
+//     console.error('Claim failed:', err);
+//     res.status(500).json({ error: 'Server error during claim.' });
+//   }
+// });
 
 router.get("/registrations", (req, res) => {
     const sixMonthsAgo = new Date();

@@ -25,7 +25,7 @@ function RetailerStock() {
   const [showReadyProducts, setShowReadyProducts] = useState(false);
 
   useEffect(() => {
-    axios.get(`${process.env.BASE_URL}/api/retailers`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers`)
     //('http://localhost:5000/api/retailers')
       .then(res => setRetailers(res.data))
       .catch(err => console.error(err));
@@ -33,7 +33,7 @@ function RetailerStock() {
 
   useEffect(() => {
     if (selectedRetailer && selectedRetailer.isTeamLeader) {
-      axios.get(`${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`)
+      axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`)
       //(`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`)
         .then(response => {
           setRetailers(response.data);
@@ -43,7 +43,7 @@ function RetailerStock() {
           setRetailers([]); 
         });
     } else {
-      axios.get(`${process.env.BASE_URL}/api/retailers`)
+      axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers`)
       //('http://localhost:5000/api/retailers')
         .then(res => setRetailers(res.data))
         .catch(err => console.error(err));
@@ -53,7 +53,7 @@ function RetailerStock() {
 
   const fetchRetailStock = (retailerId) => {
     if (!retailerId) return;
-    axios.get(`${process.env.BASE_URL}/api/retailers/${retailerId}/stock`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/${retailerId}/stock`)
     //(`http://localhost:5000/api/retailers/${retailerId}/stock`)
       .then(res => setRetailProducts(res.data))
       .catch(err => console.error(err));
@@ -66,7 +66,7 @@ function RetailerStock() {
 
   const fetchRetailerInvoices = async () => {
     try {
-      const res = await axios.get(`${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/invoices`);
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/invoices`);
       //(`http://localhost:5000/api/retailers/${selectedRetailer._id}/invoices`);
       setRetailerInvoices(res.data);
       setShowInvoices(true);
@@ -102,7 +102,7 @@ function RetailerStock() {
     if (!selectedRetailer || selectedProducts.length === 0) return;
   
     try {
-      const res = await axios.post(`${process.env.BASE_URL}/api/products/assign-bulk`, {
+      const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/products/assign-bulk`, {
       //('http://localhost:5000/api/products/assign-bulk', {
         barcodes: selectedProducts,
         destinationType: 'Retailer',
@@ -122,7 +122,7 @@ function RetailerStock() {
 
   const loadReadyProducts = async () => {
     try {
-      const res = await axios.get(`${process.env.BASE_URL}/api/products/good`);
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/good`);
       //('http://localhost:5000/api/products/good');
       const unassigned = res.data.filter(p => !p.assigned);
       setReadyProducts(unassigned);
@@ -224,7 +224,7 @@ function RetailerStock() {
           <button
             onClick={async () => {
               try {
-                const res = await axios.post(`${process.env.BASE_URL}/api/retailers/create`, {
+                const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/retailers/create`, {
                 //('http://localhost:5000/api/retailers/create', {
                   name: newRetailerName,
                   isTeamLeader,
@@ -329,10 +329,10 @@ function RetailerStock() {
               onClick={async () => {
                 if (window.confirm(`Are you sure you want to delete ${selectedRetailer.name}?`)) {
                   try {
-                    await axios.delete(`${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}`);
+                    await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}`);
                     //(`http://localhost:5000/api/retailers/${selectedRetailer._id}`);
                     setSelectedRetailer(null);
-                    const refreshed = await axios.get(`${process.env.BASE_URL}/api/retailers`);
+                    const refreshed = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers`);
                     //('http://localhost:5000/api/retailers');
                     setRetailers(refreshed.data);
                     setRetailProducts([]);
@@ -429,13 +429,13 @@ function RetailerStock() {
                 onClick={async () => {
                   try {
                     const res = await axios.post(
-                      `${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/team-member`,
+                      `${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/team-member`,
                       //`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-member`,
                       { name: newRetailerName }
                     );
                     setNewRetailerName('');
                     const refreshed = await axios.get(
-                      `${process.env.BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`
+                      `${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`
                       //`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`
                     );
                     setRetailers(refreshed.data);

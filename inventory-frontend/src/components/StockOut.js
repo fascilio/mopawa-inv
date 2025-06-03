@@ -12,7 +12,7 @@ function StockOutPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`${process.env.BASE_URL}/api/products/good`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/good`)
     //('http://localhost:5000/api/products/good')
       .then(res => {
         const unassigned = res.data.filter(p => !p.assigned);
@@ -29,7 +29,7 @@ function StockOutPage() {
 
     const endpoint = type === 'Dealer' ? '/api/dealers' : '/api/retailers';
 
-    axios.get(`${process.env.BASE_URL}${endpoint}`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}${endpoint}`)
     //(`http://localhost:5000${endpoint}`)
       .then(res => {
         const filtered = type === 'Dealer'
@@ -60,7 +60,7 @@ function StockOutPage() {
     if (!selectedClient || scannedBarcodes.length === 0) return;
 
     try {
-      const res = await axios.post(`${process.env.BASE_URL}/api/products/assign-bulk`, {
+      const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/products/assign-bulk`, {
       //('http://localhost:5000/api/products/assign-bulk', {
         barcodes: scannedBarcodes,
         destinationType: clientType,

@@ -27,7 +27,7 @@ function Warranty() {
       const response = await axios.post(
         // "https://warranty.mopawa.co.ke/getWarrantySms",
         //"http://localhost:5000/api/warranty/getWarrantySms", 
-        `${process.env.BASE_URL}/api/warranty/getWarrantySms`,
+        `${process.env.REACT_APP_BASE_URL}/api/warranty/claimWarranty`,
       {
         phoneNumber: claimNumber,
         serialNumber: claimSerialNumber,
@@ -58,7 +58,7 @@ function Warranty() {
       //   otp,
       // });
       const response = await 
-      axios.post(`${process.env.BASE_URL}/api/warranty/verifyOtp`, {
+      axios.post(`${process.env.REACT_APP_BASE_URL}/api/warranty/verifyOtp`, {
       //("http://localhost:5000/api/warranty/verifyOtp", {
         phoneNumber: claimNumber.trim(),
         otp: otp.trim(),
@@ -87,7 +87,7 @@ function Warranty() {
       const response = await axios.post(
       // "https://warranty.mopawa.co.ke/register",
         //"http://localhost:5000/api/warranty/register", 
-      `${process.env.BASE_URL}/api/warranty/register`,
+      `${process.env.REACT_APP_BASE_URL}/api/warranty/register`,
       {
         phone_number: phoneNumber,
         serial_number: serialNumber,

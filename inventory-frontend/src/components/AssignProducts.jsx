@@ -4,13 +4,13 @@ import BarcodeInputScanner from '../components/BarcodeScanner';
 
 function AssignProducts() {
   const [barcodes, setBarcodes] = useState([]);
-  const [destinationType, setDestinationType] = useState('dealer'); // lowercase
+  const [destinationType, setDestinationType] = useState('dealer'); 
   const [destinationId, setDestinationId] = useState('');
   const [destinations, setDestinations] = useState([]);
 
   useEffect(() => {
     axios
-      .get(`${process.env.BASE_URL}/api/${destinationType}s`)
+      .get(`${process.env.REACT_APP_BASE_URL}/api/${destinationType}s`)
       //.get(`http://localhost:5000/api/${destinationType}s`)
       .then((res) => setDestinations(res.data))
       .catch((err) => {
@@ -45,7 +45,7 @@ function AssignProducts() {
     console.log('📦 Sending assignment request:', payload);
   
     try {
-      await axios.post(`${process.env.BASE_URL}/api/products/assign`, payload, {
+      await axios.post(`${process.env.REACT_APP_BASE_URL}/api/products/assign`, payload, {
       // .post('http://localhost:5000/api/products/assign', payload, {
         headers: {
           'Content-Type': 'application/json',

@@ -17,15 +17,15 @@ function Dashboard() {
       try {
         const [testingRes, maintenanceRes, goodRes, dealerRes, retailerRes] = await Promise.all([
           //axios.get('http://localhost:5000/api/products/testing-count'),
-          axios.get(`${process.env.BASE_URL}/api/products/testing-count`),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/testing-count`),
           //axios.get('http://localhost:5000/api/products/maintenance-count'),
-          axios.get(`${process.env.BASE_URL}/api/products/maintenance-count`),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/maintenance-count`),
           //axios.get('http://localhost:5000/api/products/good-count'),
-          axios.get(`${process.env.BASE_URL}/api/products/good-count`),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/good-count`),
           //axios.get('http://localhost:5000/api/dealers/stock-count'),
-          axios.get(`${process.env.BASE_URL}/api/dealers/stock-count`),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers/stock-count`),
           //axios.get('http://localhost:5000/api/retailers/stock-count'),
-          axios.get(`${process.env.BASE_URL}/api/retailers/stock-count`),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/stock-count`),
         ]);
 
         setCounts({
