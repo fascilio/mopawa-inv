@@ -15,7 +15,7 @@ function TestingStation() {
   
   const processBarcode = async (scannedBarcode) => {
     try {
-      const response = await api.post('products/receive', { barcode: scannedBarcode });
+      const response = await api.post('/api/products/receive', { barcode: scannedBarcode });
       setScanStatus('success');
       setScanMessage(response.data.message || 'Scan successful');
       setReloadKey((prev) => prev + 1);
