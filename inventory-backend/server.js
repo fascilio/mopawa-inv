@@ -7,7 +7,7 @@ const retailerRoutes = require('./routes/retailerRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const warrantyRoutes = require('./routes/warranty');
 const mpesaRoutes = require('./routes/mpesaRoutes');
-
+const path = require('path');
 require('dotenv').config();
 const app = express();
 
@@ -25,16 +25,26 @@ app.use(express.json());
 
 //const uri = `mongodb://mopawa:mypassword@mopawa-docdb.cluster-cny6u6c4g3s7.af-south-1.docdb.amazonaws.com:27017/mopawa?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
 
+// mongoose.connect(process.env.MONGO_URI, {
+//   tls: true,
+//   tlsCAFile: __dirname + '/warehouse.pem',
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// })
+// .then(() => console.log('✅ Connected to AWS DocumentDB'))
+// .catch((err) => console.error('❌ Failed to connect to DocumentDB', err));
+
+
+//const uri = `mongodb://mopawa:mypassword@mopawa-docdb.cluster-cny6u6c4g3s7.af-south-1.docdb.amazonaws.com:27017/mopawa?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false&authMechanism=SCRAM-SHA-1`;
+
 mongoose.connect(process.env.MONGO_URI, {
   tls: true,
-  tlsCAFile: __dirname + '/warehouse.pem',
+  tlsCAFile: path.join(__dirname, 'warehouse.pem'),
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 .then(() => console.log('✅ Connected to AWS DocumentDB'))
-.catch((err) => console.error('❌ Failed to connect to DocumentDB', err));
-
-
+.catch((err) => console.error('❌ Failed to connect to DocumentDB', err))
 
 //mongoose.connect(process.env.MONGO_URI)
 // Instead of mongodb+srv://...
