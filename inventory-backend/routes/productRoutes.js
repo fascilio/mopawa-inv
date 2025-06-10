@@ -200,16 +200,6 @@ router.post('/assign-bulk', async (req, res) => {
 });
 
 
-
-// GET /api/products/assigned
-// router.get('/assigned', async (req, res) => {
-//   try {
-//     const assignedProducts = await Product.find({ assigned: true }).populate('assignedTo');
-//     res.json(assignedProducts);
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to fetch assigned products' });
-//   }
-// });
 router.get('/assigned', async (req, res) => {
   try {
     // Fetch all assigned products
@@ -320,24 +310,6 @@ router.get('/good-count', async (req, res) => {
 });
 
 
-// // POST /api/products/samples - Create new sample destination
-// router.post('/samples', async (req, res) => {
-//   const { barcode } = req.body;
-//   if (!barcode) return res.status(400).json({ message: 'barcode is required' });
-
-//   try {
-//     const existing = await Sample.findOne({ barcode });
-//     if (existing) return res.status(400).json({ message: 'Sample already exists' });
-
-//     const sample = new Sample({ barcode });
-//     await sample.save();
-//     res.status(201).json(sample);
-//   } catch (err) {
-//     console.error('Error creating sample:', err);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// });
-
 router.post('/samples', async (req, res) => {
   const { barcode } = req.body;
 
@@ -363,16 +335,6 @@ router.post('/samples', async (req, res) => {
 });
 
 
-// GET /api/products/samples - Get all sample destinations
-// router.get('/samples', async (req, res) => {
-//   try {
-//     const samples = await Sample.find().sort({ name: 1 });
-//     res.json(samples);
-//   } catch (err) {
-//     console.error('Error fetching samples:', err);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// });
 router.get('/samples', async (req, res) => {
   try {
     const sampleProducts = await Product.find({ assigned: true, assignedType: 'Sample' });
