@@ -21,22 +21,19 @@ app.use(express.json());
 // .catch(err => console.log(err));
 
 
-const fs = require('fs');
+//const mongoose = require('mongoose');
 
-// Path to your downloaded PEM file on EC2
-const ca = [fs.readFileSync('./warehouse.pem')];
-
-// Connection string format for DocumentDB
-//const uri = `mongodb://mopawa:Mopawa*0201@mopawa-docdb.cluster-cny6u6c4g3s7.af-south-1.docdb.amazonaws.com:27017/mopawa?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+//const uri = `mongodb://mopawa:mypassword@mopawa-docdb.cluster-cny6u6c4g3s7.af-south-1.docdb.amazonaws.com:27017/mopawa?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
 
 mongoose.connect(process.env.MONGO_URI, {
-  sslValidate: true,
-  sslCA: ca,
+  tls: true,
+  tlsCAFile: __dirname + '/warehouse.pem',
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 .then(() => console.log('✅ Connected to AWS DocumentDB'))
 .catch((err) => console.error('❌ Failed to connect to DocumentDB', err));
+
 
 
 //mongoose.connect(process.env.MONGO_URI)
