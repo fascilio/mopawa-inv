@@ -14,13 +14,35 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// mongoose.connect(process.env.MONGO_URI, {
+//   // useNewUrlParser: true,
+//   // useUnifiedTopology: true,
+// }).then(() => console.log('MongoDB connected'))
+// .catch(err => console.log(err));
+
+
+const fs = require('fs');
+
+// Path to your downloaded PEM file on EC2
+const ca = [fs.readFileSync('./warehouse.pem')];
+
+// Connection string format for DocumentDB
+//const uri = `mongodb://mopawa:Mopawa*0201@mopawa-docdb.cluster-cny6u6c4g3s7.af-south-1.docdb.amazonaws.com:27017/mopawa?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+
 mongoose.connect(process.env.MONGO_URI, {
+  sslValidate: true,
+  sslCA: ca,
   useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to AWS DocumentDB'))
+.catch((err) => console.error('❌ Failed to connect to DocumentDB', err));
+
+
 //mongoose.connect(process.env.MONGO_URI)
-//mongoose.connect('mongodb+srv://fascilior:Adrenali6.@cluster1.fopqtud.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1')
+// Instead of mongodb+srv://...
+// Use this (with 3 nodes and direct replicaSet)
+// mongoose.connect("mongodb://fascilior:Adrenalin6.@ac-1b30fug-shard-00-00.fopqtud.mongodb.net:27017,ac-1b30fug-shard-00-01.fopqtud.mongodb.net:27017,ac-1b30fug-shard-00-02.fopqtud.mongodb.net:27017/admin?ssl=true&replicaSet=atlas-9qyq9w-shard-0&authSource=admin&retryWrites=true&w=majority")
 //   .then(() => console.log('MongoDB connected'))
 // .catch(err => console.log(err));
 
