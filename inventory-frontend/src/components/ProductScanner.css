@@ -1,4 +1,4 @@
-.testing-container {
+/* .testing-container {
     max-width: 600px;
     margin: 2rem auto;
     background-color: #f9fafb;
@@ -45,4 +45,101 @@
   .scan-button:hover {
     background-color: #1e40af;
   }
+   */
+
+
+   .testing-container {
+  padding: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, hsl(124, 47%, 71%) 0%, #90EE90 50%, #90EE90 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #000066;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1000px;
+  height: 600px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.testing-container h3 {
+  font-size: 2rem;
+  margin: 1rem 0;
+  color: black;
+  border-bottom: 2px solid #025e2c;
+  padding-bottom: 5px;
+  text-align: left;
+}
+
+.testing-stock-in,
+.testing-stock-out,
+.testing-product-history {
+  background-color: #025e2c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease-in-out;
+  width: fit-content;
+  align-self: flex-start;
+}
+
+.testing-stock-in:hover,
+.testing-stock-out:hover,
+.testing-product-history:hover {
+  background-color: black;
+}
+
+.scan-message {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.scan-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.scan-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+  .testing-container {
+    padding: 1rem;
+    height: auto;
+  }
+
+  .testing-container h3 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .testing-stock-in,
+  .testing-stock-out,
+  .testing-product-history {
+    width: 100%;
+    text-align: center;
+  }
+
+  .scan-message {
+    font-size: 0.9rem;
+  }
+}
+
   

@@ -32,7 +32,8 @@ function DealerStock() {
 
   const fetchDealerInvoices = async () => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers/${selectedDealer._id}/invoices`);
+      const res = await axios.get
+      (`${process.env.REACT_APP_BASE_URL}/api/dealers/${selectedDealer._id}/invoices`);
       //(`http://localhost:5000/api/dealers/${selectedDealer._id}/invoices`);
       setDealerInvoices(res.data);
       setShowInvoices(true);
@@ -44,7 +45,8 @@ function DealerStock() {
 
   const handleSaveEdit = async () => {
     try {
-      const res = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/dealers/${editingDealerId}`, {
+      const res = await axios.put
+      (`${process.env.REACT_APP_BASE_URL}/api/dealers/${editingDealerId}`, {
       //(`http://localhost:5000/api/dealers/${editingDealerId}`, {
         name: editedName
       });
@@ -60,7 +62,8 @@ function DealerStock() {
   const handleDeleteDealer = async (id) => {
     if (!window.confirm('Are you sure you want to delete this dealer?')) return;
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/dealers/${id}`);
+      await axios.delete
+      (`${process.env.REACT_APP_BASE_URL}/api/dealers/${id}`);
       //(`http://localhost:5000/api/dealers/${id}`);
       setDealers(dealers.filter(d => d._id !== id));
       if (selectedDealer && selectedDealer._id === id) {
@@ -75,7 +78,8 @@ function DealerStock() {
 
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers`)
+    axios.get
+    (`${process.env.REACT_APP_BASE_URL}/api/dealers`)
     //('http://localhost:5000/api/dealers')
       .then(res => setDealers(res.data))
       .catch(err => console.error(err));
@@ -104,7 +108,8 @@ function DealerStock() {
         //(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
         setDealerProducts(stockRes.data);
 
-        const readyRes = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/products/good`);
+        const readyRes = await axios.get
+        (`${process.env.REACT_APP_BASE_URL}/api/products/good`);
         //('http://localhost:5000/api/products/good');
         const unassigned = readyRes.data.filter(p => !p.assigned);
         setAssignableProducts(unassigned);
@@ -350,7 +355,7 @@ function DealerStock() {
                   Invoice #{inv.invoiceNumber} - {new Date(inv.createdAt).toLocaleDateString()} - 
                   {/* <a href={`http://localhost:5000/api/invoice/${inv._id}/view`} target="_blank" rel="noopener noreferrer">View PDF</a> |  */}
                   <Link to={`/invoice/${inv._id}`} target="_blank" rel="noopener noreferrer">View </Link> or 
-                  {/* <a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a> */}
+                  {/*<a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>*/} 
                   <a href={`${process.env.REACT_APP_BASE_URL}/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
                 </li>
               ))}

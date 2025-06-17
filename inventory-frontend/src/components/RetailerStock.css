@@ -1,4 +1,4 @@
-/* RetailerStock.css */
+/* RetailerStock.css
 
 .retailer-container {
     padding: 1.5rem;
@@ -108,4 +108,148 @@
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
   }
+   */
+
+.retailer-container {
+  padding: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, hsl(124, 47%, 71%) 0%, #90EE90 50%, #90EE90 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #000066;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1000px;
+  height: 600px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.retailer-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: yellow;
+  border-bottom: 2px solid #025e2c ;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.retailer-button,
+.save-button,
+.assign-button {
+  background-color: #025e2c;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  width: fit-content; /* Limit width to content */
+  align-self: flex-start; /* Optional: align to left if inside flex container */
+
+
+}
+
+.retailer-button:hover,
+.save-button:hover,
+.assign-button:hover {
+  background-color: black;
+}
+
+.add-retailer-form,
+.assign-section,
+.warranty-section,
+.invoice-list,
+.team-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.add-retailer-input {
+  padding: 6px;
+  margin: 5px 0;
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.assign-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.assign-list li {
+  margin: 4px 0;
+}
+
+.stock-title,
+.assign-title,
+.warranty-section h3,
+.invoice-list h3,
+.team-section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.retailer-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.retailer-list button {
+  padding: 6px 12px;
+  background-color: #f0f8ff;
+  border: 1px solid #025e2c;
+  color: #025e2c;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.retailer-list button:hover {
+  background-color: #025e2c;
+  color: white;
+}
+
+.invoice-list ul {
+  padding-left: 1.2rem;
+}
+
+.invoice-list li {
+  margin: 6px 0;
+}
+
+input[type='text'],
+input[type='date'],
+select {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.product-category-boxes {
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .product-category-boxes {
+    flex-direction: column;
+  }
+
+  .product-category-boxes > div {
+    width: 100%;
+  }
+}
+
   

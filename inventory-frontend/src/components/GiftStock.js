@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import "./GiftStock.css"
 
 function GiftStock() {
   const [giftedProducts, setGiftedProducts] = useState([]);
@@ -42,7 +43,7 @@ function GiftStock() {
   };
 
   return (
-    <div>
+    <div className='gift-stock-container'>
       <h2>Gift Products</h2>
 
       {/* <input

@@ -1,4 +1,4 @@
-.maintenance-container {
+/* .maintenance-container {
     padding: 1.5rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #fef9c3;
@@ -30,7 +30,6 @@
     border-bottom: 1px solid #fde68a;
   }
   
-  /* Optional scroll style */
   .maintenance-list::-webkit-scrollbar {
     width: 6px;
   }
@@ -69,4 +68,166 @@
   .mark-good-button:hover {
     background-color: #059669;
   }
+   */
+
+   .maintenance-container {
+  padding: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, hsl(124, 47%, 71%) 0%, #90EE90 50%, #90EE90 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: yellow;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 1000px;
+  height: 85vh;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+
+
+
+.maintenance-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: yellow;
+  margin-bottom: 1rem;
+  text-align: center;
+  text-shadow: 1px 1px 2px black;
+}
+
+.maintenance-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Scrollbar styling */
+.maintenance-list::-webkit-scrollbar {
+  width: 6px;
+}
+.maintenance-list::-webkit-scrollbar-thumb {
+  background-color: yellowgreen;
+  border-radius: 4px;
+}
+
+.maintenance-item {
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.maintenance-barcode {
+  font-weight: 500;
+  color: #f0fdf4;
+}
+
+.mark-good-button {
+  padding: 0.5rem 1rem;
+  background-color: lawngreen;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mark-good-button:hover {
+  background-color: yellowgreen;
+  box-shadow: 0 0 10px yellow;
+}
+
+
+
+
+.stock-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stock-buttons button {
+  padding: 0.6rem 1.2rem;
+  background-color: #065f46;
+  color: #facc15;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.stock-buttons button:hover {
+  background-color: #047857;
+  transform: scale(1.03);
+}
+
+.stock-buttons .active {
+  background-color: #10b981;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Scan section */
+.scan-field {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.scan-field input {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #facc15;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  background-color: #f0fdf4;
+  color: #065f46;
+}
+
+.scan-field input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.3);
+}
+
+.scan-field button {
+  padding: 0.75rem 1.2rem;
+  background-color: #065f46;
+  color: #facc15;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.scan-field button:hover {
+  background-color: #047857;
+}
+
+
   

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import "./SampleStock.css"
 
 function SampleStock() {
   const [sampleProducts, setSampleProducts] = useState([]);
@@ -65,7 +66,7 @@ function SampleStock() {
   };
 
   return (
-    <div>
+    <div className="sample-stock-container">
       <h2>Sample Stock Management</h2>
 
       <input

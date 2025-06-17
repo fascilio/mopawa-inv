@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './Notifications.css';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -7,8 +8,7 @@ const Notifications = () => {
   const [filter, setFilter] = useState('all'); 
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/warranty/notifications`)
-    //('http://localhost:5000/api/warranty/notifications')
+    axios.get(`${process.env.BASE_URL}/api/warranty/notifications`)
       .then(res => {
         setNotifications(res.data);
         setLoading(false);
@@ -27,22 +27,22 @@ const Notifications = () => {
   });
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Warranty Notifications</h2>
+    <div className="notifications-container">
+      <h2 className="notifications-title">Warranty Notifications</h2>
 
-      <div style={styles.buttonContainer}>
-        <button onClick={() => setFilter('all')} style={filter === 'all' ? styles.activeButton : styles.button}>All</button>
-        <button onClick={() => setFilter('registration')} style={filter === 'registration' ? styles.activeButton : styles.button}>Registrations</button>
-        <button onClick={() => setFilter('claim')} style={filter === 'claim' ? styles.activeButton : styles.button}>Claims</button>
+      <div className="filter-buttons">
+        <button onClick={() => setFilter('all')} className={filter === 'all' ? 'active' : ''}>All</button>
+        <button onClick={() => setFilter('registration')} className={filter === 'registration' ? 'active' : ''}>Registrations</button>
+        <button onClick={() => setFilter('claim')} className={filter === 'claim' ? 'active' : ''}>Claims</button>
       </div>
 
       {loading ? (
-        <p style={styles.loading}>Loading notifications...</p>
+        <p className="status-message">Loading notifications...</p>
       ) : filteredNotifications.length === 0 ? (
-        <p style={styles.noNotifications}>No notifications found for this filter.</p>
+        <p className="status-message">No notifications found for this filter.</p>
       ) : (
         filteredNotifications.map((n, idx) => (
-          <div key={idx} style={styles.notification}>
+          <div key={idx} className="notification-card">
             <p><strong>📞 Phone:</strong> {n.phoneNumber}</p>
             <p><strong>🔢 Product:</strong> {n.serialNumber}</p>
             <p><strong>📝 Message:</strong> {n.message}</p>
@@ -54,52 +54,5 @@ const Notifications = () => {
   );
 };
 
-const styles = {
-  container: {
-    padding: '30px',
-    maxWidth: '700px',
-    margin: 'auto',
-    fontFamily: 'Arial, sans-serif',
-  },
-  heading: {
-    textAlign: 'center',
-    marginBottom: '20px',
-  },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '10px',
-    marginBottom: '20px',
-  },
-  button: {
-    padding: '10px 15px',
-    background: '#eee',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
-  activeButton: {
-    padding: '10px 15px',
-    background: '#007bff',
-    color: '#fff',
-    border: '1px solid #007bff',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
-  loading: {
-    textAlign: 'center',
-  },
-  noNotifications: {
-    textAlign: 'center',
-    color: '#777',
-  },
-  notification: {
-    background: '#f1f1f1',
-    borderRadius: '10px',
-    padding: '15px',
-    marginBottom: '15px',
-    boxShadow: '0 0 5px rgba(0,0,0,0.1)',
-  }
-};
-
 export default Notifications;
+

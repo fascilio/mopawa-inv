@@ -58,7 +58,8 @@ function Warranty() {
       //   otp,
       // });
       const response = await 
-      axios.post(`${process.env.REACT_APP_BASE_URL}/api/warranty/verifyOtp`, {
+      axios.post
+      (`${process.env.REACT_APP_BASE_URL}/api/warranty/verifyOtp`, {
       //("http://localhost:5000/api/warranty/verifyOtp", {
         phoneNumber: claimNumber.trim(),
         otp: otp.trim(),
@@ -86,7 +87,7 @@ function Warranty() {
     try {
       const response = await axios.post(
       // "https://warranty.mopawa.co.ke/register",
-        //"http://localhost:5000/api/warranty/register", 
+      //"http://localhost:5000/api/warranty/register", 
       `${process.env.REACT_APP_BASE_URL}/api/warranty/register`,
       {
         phone_number: phoneNumber,
@@ -110,11 +111,11 @@ function Warranty() {
       
       <div className="h-[50vh] w-[100vw] z-1 relative">
         <div className="h-[50vh] w-[100vw] z-1 absolute bg-black opacity-40"></div>
-        {/* <img
+        <img
           src="https://www.jacanawarranty.com/wp-content/uploads/elementor/thumbs/Warranty-01-1024x651-1-q8nzmxabqfbqzcxo77dcks2kuea1li9g6v3k5yajrc.webp"
           alt="Hero section"
           className="w-[100vw] h-[50vh] object-cover"
-        /> */}
+        />
         <div className="text-white absolute h-full w-full top-0 left-0 lg:ml-[10%] flex flex-col justify-center lg:items-start items-center">
           <h1 className="font-bold text-4xl mb-10">Register Warranty</h1>
           <span className="lg:text-2xl text-lg font-normal">

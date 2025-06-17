@@ -45,7 +45,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-title">📊 Warehouse Management</h2>
+      <h2 className="dashboard-title"> Warehouse Management</h2>
       <div className="dashboard-grid">
         <div className="dashboard-box"><Link to="/scanner">Import Warehouse: {counts.testing}</Link></div>
         <div className="dashboard-box"><Link to="/maintenance">Spare Parts Warehouse: {counts.maintenance}</Link></div>

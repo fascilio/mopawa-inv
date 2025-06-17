@@ -7,7 +7,9 @@ function TestingQueue({ reloadTrigger }) {
 
   useEffect(() => {
     const fetchPending = async () => {
-      const res = await api.get('/products/pending');
+      const res = await api.get
+      (`${process.env.REACT_APP_BASE_URL}/api/products/pending`);
+      //("http://localhost:5000/api/products/pending");
       setPendingProducts(res.data.reverse());
     };
 
@@ -15,13 +17,17 @@ function TestingQueue({ reloadTrigger }) {
   }, [reloadTrigger]);
 
   const handleTest = async (id, status) => {
-    await api.post(`/products/test/${id}`, { status });
+    await api.post
+    (`${process.env.REACT_APP_BASE_URL}/api/products/test/${id}`, { status });
+    //(`http://localhost:5000/api/products/test/${id}`, { status });
     setPendingProducts(pendingProducts.filter((p) => p._id !== id));
   };
 
   const handleDelete = async (barcode) => {
     try {
-      await api.delete(`/products/delete-by-barcode/${barcode}`);
+      await api.delete
+      (`${process.env.REACT_APP_BASE_URL}/api/products/delete-by-barcode/${barcode}`);
+      //(`http://localhost:5000/api/products/delete-by-barcode/${barcode}`);
       setPendingProducts(pendingProducts.filter((p) => p.barcode !== barcode));
     } catch (err) {
       console.error('Delete failed:', err);
