@@ -69,7 +69,8 @@ router.post("/register", async (req, res) => {
   const notification = new Notification({
     phoneNumber: phone_number,
     serialNumber: serial_number,
-    message: `New warranty registration by ${phone_number} for product ${serial_number}`
+    message: `New warranty registration by ${phone_number} for product ${serial_number}`,
+    type: 'warranty-registration'
   });
   await notification.save().catch(err => console.error("Failed to save registration notification:", err));
 
@@ -134,7 +135,8 @@ router.post("/verifyOtp", (req, res) => {
     const notification = new Notification({
       phoneNumber,
       serialNumber: registration.serial_number,
-      message: `Warranty claim made by ${phoneNumber} for product ${registration.serial_number}`
+      message: `Warranty claim made by ${phoneNumber} for product ${registration.serial_number}`,
+      type: 'warranty-claim'
     });
 
     notification.save().catch(err => console.error("Failed to save notification:", err));

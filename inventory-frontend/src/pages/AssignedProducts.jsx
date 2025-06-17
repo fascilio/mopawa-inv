@@ -53,6 +53,7 @@ function AssignedProducts() {
             <th>Distributed To</th>
             <th>Type</th>
             <th>Date</th>
+            <th>Release Time</th>
           </tr>
         </thead>
       </table>
@@ -78,6 +79,7 @@ function AssignedProducts() {
                   <td>{p.assignedTo?.name || 'Unknown'}</td>
                   <td>{p.assignedType}</td>
                   <td>{new Date(p.createdAt).toLocaleString()}</td>
+                  <td>{p.assignment?.date ? new Date(p.assignment.date).toLocaleString() : 'N/A'}</td>
                 </tr>
               ))}
           </tbody>

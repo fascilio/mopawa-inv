@@ -18,7 +18,7 @@ function SidebarLayout() {
 
       {/* Sidebar with conditional mobile class */}
       <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <img src="mopawalogo.png" alt="Logo" className="logo" />
+        <img src="/mopawalogo.png" alt="Logo" className="logo" />
         <h3>Admin Panel</h3>
         <ul>
           <li><Link to="/" onClick={() => setSidebarOpen(false)}>Dashboard</Link></li>
