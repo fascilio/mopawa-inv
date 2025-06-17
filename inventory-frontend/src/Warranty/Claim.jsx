@@ -121,13 +121,13 @@ export default function WarrantyPolicy() {
 
       <section className="mb-6">
         <h2 className="text-lg font-semibold">1. Warranty Period</h2>
-        <p>
+        <p style={{ color: 'black' }}>
           This product is covered by a limited warranty of{" "}
           <strong>6 months</strong>, commencing from the date of successful
           online registration by the user on the official website. The warranty
           period will not be extended or reset unless otherwise stated.
         </p>
-        <p>
+        <p style={{ color: 'black' }}>
           If online registration is not done within the stipulated period, the
           warranty period will start from the stock release date.
         </p>
@@ -135,7 +135,7 @@ export default function WarrantyPolicy() {
 
       <section className="mb-6">
         <h2 className="text-lg font-semibold">2. Warranty Coverage</h2>
-        <p>
+        <p style={{ color: 'black' }}>
           During the warranty period, we will provide one (1) free replacement
           or repair service at our discretion, which may include:
         </p>
@@ -153,7 +153,7 @@ export default function WarrantyPolicy() {
 
       <section className="mb-6">
         <h2 className="text-lg font-semibold">3. Post-Service Warranty</h2>
-        <p>
+        <p style={{ color: 'black' }}>
           If a replacement or repair is provided under warranty, the original
           6-month warranty period will not be reset. The remaining warranty
           duration from the original registration date will continue to apply to
@@ -188,7 +188,7 @@ export default function WarrantyPolicy() {
 
       <section className="mb-6">
         <h2 className="text-lg font-semibold">5. Exclusions</h2>
-        <p>This warranty does not cover:</p>
+        <p style={{ color: 'black' }}>This warranty does not cover:</p>
         <ul className="list-disc list-inside pl-4">
           <li>
             Damage caused by misuse, accidents, liquid exposure, or unauthorized
@@ -223,7 +223,11 @@ export default function WarrantyPolicy() {
 
       <section>
         <h2 className="text-lg font-semibold">7. Limitation of Liability</h2>
-        <p>
+        {/* <p>
+          This warranty is limited to product replacement/repair. We are not
+          liable for indirect damages (e.g., data loss, device incompatibility).
+        </p> */}
+        <p style={{ color: 'black' }}>
           This warranty is limited to product replacement/repair. We are not
           liable for indirect damages (e.g., data loss, device incompatibility).
         </p>

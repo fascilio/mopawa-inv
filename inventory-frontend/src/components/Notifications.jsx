@@ -8,7 +8,7 @@ const Notifications = () => {
   const [filter, setFilter] = useState('all'); 
 
   useEffect(() => {
-    axios.get(`${process.env.BASE_URL}/api/warranty/notifications`)
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/warranty/notifications`)
       .then(res => {
         setNotifications(res.data);
         setLoading(false);

@@ -12,6 +12,8 @@ import Dashboard from './components/Dashboard';
 import AssignedProducts from './pages/AssignedProducts'
 import InvoiceViewer from './pages/InvoiceViewer';
 import WarrantyPolicy from './Warranty/Warranty';
+import WarrantyRegister from './Warranty/WarrantyRegister';
+import WarrantyClaim from './Warranty/WarrantyClaim'; 
 import Notifications from './components/Notifications';
 import AdminPayments from './components/AdminPayments';
 import MpesaForm from './components/MpesaForm';
@@ -33,6 +35,8 @@ function App() {
         <Route path="samples" element={<SampleStock />} />
         <Route path="gifts" element={<GiftStock />} />
         <Route path="warranty-policy" element={<WarrantyPolicy />} />
+        <Route path="/warranty-policy/register" element={<WarrantyRegister />} />
+        <Route path="/warranty-policy/claim" element={<WarrantyClaim />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="payments" element={<AdminPayments />} />
         <Route path="stk-push" element={<MpesaForm />} />
