@@ -64,7 +64,7 @@ function StockOutPage() {
       //('http://localhost:5000/api/products/assign-bulk', {
         barcodes: scannedBarcodes,
         destinationType: clientType,
-        destinationId: selectedClient._id
+        destinationId: selectedClient.id
       });
 
       const { invoiceId } = res.data;
@@ -96,16 +96,23 @@ function StockOutPage() {
       {clientType && (
         <div style={{ marginTop: '15px' }}>
           <label>Select {clientType}:</label>
-          <select
-            value={selectedClient?._id || ''}
+          {/* <select
+            value={selectedClient?.id || ''}
             onChange={(e) => {
-              const selected = clients.find(c => c._id === e.target.value);
+              const selected = clients.find(c => c.id === e.target.value);
+              setSelectedClient(selected);
+            }}
+          > */}
+          <select
+            value={selectedClient?.id || ''}
+            onChange={(e) => {
+              const selected = clients.find(c => c.id === Number(e.target.value));
               setSelectedClient(selected);
             }}
           >
             <option value="">-- Select --</option>
             {clients.map(client => (
-              <option key={client._id} value={client._id}>
+              <option key={client.id} value={client.id}>
                 {client.name}
               </option>
             ))}

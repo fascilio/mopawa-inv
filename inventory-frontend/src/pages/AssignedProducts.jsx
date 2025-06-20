@@ -74,12 +74,13 @@ function AssignedProducts() {
                 return true;
               })
               .map((p) => (
-                <tr key={p._id}>
+                <tr key={p.id}>
                   <td>{p.barcode}</td>
                   <td>{p.assignedTo?.name || 'Unknown'}</td>
                   <td>{p.assignedType}</td>
                   <td>{new Date(p.createdAt).toLocaleString()}</td>
-                  <td>{p.assignment?.date ? new Date(p.assignment.date).toLocaleString() : 'N/A'}</td>
+                  {/* <td>{p.assignment?.date ? new Date(p.assignment.date).toLocaleString() : 'N/A'}</td> */}
+                  <td>{p.assignmentDate ? new Date(p.assignmentDate).toLocaleString() : 'N/A'}</td>
                 </tr>
               ))}
           </tbody>

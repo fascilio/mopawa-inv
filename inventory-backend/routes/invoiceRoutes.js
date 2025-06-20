@@ -1,21 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const Invoice = require('../models/Invoice');
+const Product = require('../models/Product');
+const Dealer = require('../models/Dealer');
+const Retailer = require('../models/Retailer');
 const generateInvoicePdf = require('../utils/generateInvoicePdf');
 const path = require('path');
 
+// GET: Download invoice as PDF
 router.get('/:id/download', async (req, res) => {
   try {
-    const invoice = await Invoice.findById(req.params.id)
-      .populate('customer')
-      .populate('products');
+    const invoice = await Invoice.findByPk(req.params.id, {
+      include: [Product]
+    });
 
     if (!invoice) return res.status(404).send('Invoice not found');
+
+    // Manually fetch the customer from Dealer or Retailer
+    let customer;
+    if (invoice.customerType === 'Dealer') {
+      customer = await Dealer.findByPk(invoice.customerId);
+    } else if (invoice.customerType === 'Retailer') {
+      customer = await Retailer.findByPk(invoice.customerId);
+    }
 
     const filename = `${invoice.invoiceNumber}.pdf`;
     const filePath = path.join(__dirname, '..', 'invoices', filename);
 
-    generateInvoicePdf(invoice, invoice.customer, invoice.products, filePath);
+    generateInvoicePdf(invoice, customer, invoice.Products, filePath);
 
     setTimeout(() => {
       res.download(filePath);
@@ -26,26 +38,49 @@ router.get('/:id/download', async (req, res) => {
   }
 });
 
+// GET: View invoice JSON
 router.get('/:invoiceId', async (req, res) => {
-  const invoice = await Invoice.findById(req.params.invoiceId).populate('products') .populate('customer');
-  if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
-  res.json(invoice);
+  try {
+    const invoice = await Invoice.findByPk(req.params.invoiceId, {
+      include: [Product]
+    });
+
+    if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
+
+    let customer;
+    if (invoice.customerType === 'Dealer') {
+      customer = await Dealer.findByPk(invoice.customerId);
+    } else if (invoice.customerType === 'Retailer') {
+      customer = await Retailer.findByPk(invoice.customerId);
+    }
+
+    res.json({ invoice, customer });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch invoice' });
+  }
 });
 
+// GET: View invoice as inline PDF
 router.get('/:id/view', async (req, res) => {
   try {
-    const invoice = await Invoice.findById(req.params.id)
-      .populate('customer')
-      .populate('products');
+    const invoice = await Invoice.findByPk(req.params.id, {
+      include: [Product]
+    });
 
     if (!invoice) return res.status(404).send('Invoice not found');
+
+    let customer;
+    if (invoice.customerType === 'Dealer') {
+      customer = await Dealer.findByPk(invoice.customerId);
+    } else if (invoice.customerType === 'Retailer') {
+      customer = await Retailer.findByPk(invoice.customerId);
+    }
 
     const filename = `${invoice.invoiceNumber}.pdf`;
     const filePath = path.join(__dirname, '..', 'invoices', filename);
 
-    generateInvoicePdf(invoice, invoice.customer, invoice.products, filePath);
+    generateInvoicePdf(invoice, customer, invoice.Products, filePath);
 
-    // Wait briefly for the PDF to be generated
     setTimeout(() => {
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'inline; filename="' + filename + '"');
@@ -56,6 +91,5 @@ router.get('/:id/view', async (req, res) => {
     res.status(500).send('Error generating invoice');
   }
 });
-
 
 module.exports = router;

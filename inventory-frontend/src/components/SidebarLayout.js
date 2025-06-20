@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import './SidebarLayout.css';
+import mopawaLogo from '../assets/mopawalogo.png';
 
 function SidebarLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -18,7 +19,8 @@ function SidebarLayout() {
 
       {/* Sidebar with conditional mobile class */}
       <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <img src="/mopawalogo.png" alt="Logo" className="logo" />
+        {/* <img src="/mopawalogo.png" alt="Logo" className="logo" /> */}
+        <img src={mopawaLogo} alt="Logo" className="logo" />
         <h3>Admin Panel</h3>
         <ul>
           <li><Link to="/" onClick={() => setSidebarOpen(false)}>Dashboard</Link></li>

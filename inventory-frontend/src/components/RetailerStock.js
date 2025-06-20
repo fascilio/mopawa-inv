@@ -33,7 +33,7 @@ function RetailerStock() {
 
   useEffect(() => {
     if (selectedRetailer && selectedRetailer.isTeamLeader) {
-      axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`)
+      axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer.id}/team-members`)
       //(`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`)
         .then(response => {
           setRetailers(response.data);
@@ -66,7 +66,7 @@ function RetailerStock() {
 
   const fetchRetailerInvoices = async () => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/invoices`);
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer.id}/invoices`);
       //(`http://localhost:5000/api/retailers/${selectedRetailer._id}/invoices`);
       setRetailerInvoices(res.data);
       setShowInvoices(true);
@@ -77,7 +77,7 @@ function RetailerStock() {
   };  
 
   const handleSelectRetailer = (id) => {
-    const retailer = retailers.find(r => r._id === id);
+    const retailer = retailers.find(r => r.id === id);
     setSelectedRetailer(retailer);
     fetchRetailStock(id);  
   };
@@ -213,7 +213,7 @@ function RetailerStock() {
                 {retailers
                   .filter(r => r.isTeamLeader)
                   .map(r => (
-                    <option key={r._id} value={r._id}>
+                    <option key={r.id} value={r.id}>
                       {r.name}
                     </option>
                   ))}
@@ -253,7 +253,7 @@ function RetailerStock() {
             r.name.toLowerCase().includes(searchTerm.toLowerCase())
           )
           .map((r) => (
-            <button key={r._id} onClick={() => handleSelectRetailer(r._id)}>
+            <button key={r.id} onClick={() => handleSelectRetailer(r.id)}>
               {r.name}
             </button>
           ))}
@@ -277,7 +277,7 @@ function RetailerStock() {
             <p>Click to view available products</p>
             <ul className="assign-list">
               {readyProducts.map(p => (
-                <li key={p._id}>
+                <li key={p.id}>
                   <input
                     type="checkbox"
                     checked={selectedProducts.includes(p.barcode)}
@@ -329,7 +329,7 @@ function RetailerStock() {
               onClick={async () => {
                 if (window.confirm(`Are you sure you want to delete ${selectedRetailer.name}?`)) {
                   try {
-                    await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}`);
+                    await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer.id}`);
                     //(`http://localhost:5000/api/retailers/${selectedRetailer._id}`);
                     setSelectedRetailer(null);
                     const refreshed = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/retailers`);
@@ -375,7 +375,7 @@ function RetailerStock() {
                   (!dateFilter || new Date(p.assignedAt).toISOString().split('T')[0] === dateFilter)
                 )
                 .map((p) => (
-                  <li key={p._id}>{p.barcode}</li>
+                  <li key={p.id}>{p.barcode}</li>
                 ))}
             </ul>
           )}
@@ -396,8 +396,8 @@ function RetailerStock() {
               ) : (
                 <ul>
                   {retailerInvoices.map(invoice => (
-                    <li key={invoice._id}>
-                      <Link to={`/invoice/${invoice._id}`}>Invoice #{invoice._id}</Link>
+                    <li key={invoice.id}>
+                      <Link to={`/invoice/${invoice.id}`}>Invoice #{invoice.id}</Link>
                     </li>
                   ))}
                 </ul>
@@ -429,13 +429,13 @@ function RetailerStock() {
                 onClick={async () => {
                   try {
                     const res = await axios.post(
-                      `${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/team-member`,
+                      `${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer.id}/team-member`,
                       //`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-member`,
                       { name: newRetailerName }
                     );
                     setNewRetailerName('');
                     const refreshed = await axios.get(
-                      `${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer._id}/team-members`
+                      `${process.env.REACT_APP_BASE_URL}/api/retailers/${selectedRetailer.id}/team-members`
                       //`http://localhost:5000/api/retailers/${selectedRetailer._id}/team-members`
                     );
                     setRetailers(refreshed.data);
@@ -455,7 +455,7 @@ function RetailerStock() {
                       r.name.toLowerCase().includes(searchTerm.toLowerCase())
                     )
                     .map((member) => (
-                      <button key={member._id} onClick={() => handleSelectRetailer(member._id)}>
+                      <button key={member.id} onClick={() => handleSelectRetailer(member.id)}>
                         {member.name}
                       </button>
                     ))}

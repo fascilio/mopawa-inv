@@ -80,7 +80,7 @@ function MpesaForm() {
         </label>
 
         <label>
-          Agent ID or Phone
+          Account number
           <input
             placeholder="Agent ID or Phone"
             value={agentAccount}

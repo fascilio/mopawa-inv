@@ -90,7 +90,7 @@ function SampleStock() {
           <li>No sample products assigned yet.</li>
         ) : (
           sampleProducts.map(p => (
-            <li key={p._id}>{p.barcode}</li>
+            <li key={p.id}>{p.barcode}</li>
           ))
         )}
       </ul>

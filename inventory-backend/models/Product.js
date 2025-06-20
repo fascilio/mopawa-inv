@@ -1,67 +1,54 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
-const productSchema = new mongoose.Schema({
+const Product = sequelize.define('Product', {
   barcode: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
   },
-
   status: {
-    type: String,
-    enum: ['pending', 'good', 'bad', 'assigned'], 
-    default: 'pending',
+    type: DataTypes.ENUM('pending', 'good', 'bad', 'assigned'),
+    defaultValue: 'pending',
   },
-
   category: {
-    type: String,
-    enum: ['dealer', 'retail', 'sample', 'gift', null],
-    default: null,
+    type: DataTypes.ENUM('dealer', 'retail', 'sample', 'gift'),
+    allowNull: true,
   },
-
   dealerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Dealer',
-    default: null,
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
-
   assigned: {
-    type: Boolean,
-    default: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
-
-  wasUnderMaintenance: {   
-    type: Boolean,
-    default: false,
+  wasUnderMaintenance: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
-
   assignedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    refPath: 'assignedType',
-    default: null,
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
-
   assignedType: {
-    type: String,
-    enum: ['Dealer', 'Retailer', 'Sample', 'Gift'],  
-    default: null,
+    type: DataTypes.ENUM('Dealer', 'Retailer', 'Sample', 'Gift'),
+    allowNull: true,
   },
-
-  assignment: {
-    type: {
-      type: String,
-      enum: ['Dealer', 'Retailer', 'Sample', 'Gift', null],
-      default: null,
-    },
-    id: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: 'assignment.type',
-      default: null,
-    },
-    date: Date,
+  assignmentType: {
+    type: DataTypes.ENUM('Dealer', 'Retailer', 'Sample', 'Gift'),
+    allowNull: true,
   },
+  assignmentId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  assignmentDate: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  }
+}, {
+  timestamps: true,
+});
 
-
-}, { timestamps: true });
-
-module.exports = mongoose.model('Product', productSchema);
+module.exports = Product;

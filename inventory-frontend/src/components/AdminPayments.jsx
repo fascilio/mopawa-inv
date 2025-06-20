@@ -49,7 +49,7 @@ const AdminPayments = () => {
           </thead>
           <tbody>
             {payments.map((p) => (
-              <tr key={p._id}>
+              <tr key={p.id}>
                 <td style={tdStyle}>{p.mpesaReceiptNumber}</td>
                 <td style={tdStyle}>{p.phoneNumber}</td>
                 <td style={tdStyle}>Ksh {p.amount}</td>

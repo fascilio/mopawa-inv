@@ -7,22 +7,21 @@ const Invoice = require('../models/Invoice');
 // Get all dealers
 router.get('/', async (req, res) => {
   try {
-    const dealers = await Dealer.find();
+    const dealers = await Dealer.findAll();
     res.json(dealers);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Create a dealer (main or sub)
+// Create a dealer
 router.post('/create', async (req, res) => {
   try {
     const { name, parentDealerId } = req.body;
-    const newDealer = new Dealer({
+    const newDealer = await Dealer.create({
       name,
-      parentDealer: parentDealerId || null
+      parentDealer: parentDealerId || null,
     });
-    await newDealer.save();
     res.json(newDealer);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -32,9 +31,11 @@ router.post('/create', async (req, res) => {
 // Get dealer stock
 router.get('/:dealerId/stock', async (req, res) => {
   try {
-    const products = await Product.find({
-      assigned: true,
-      assignedTo: req.params.dealerId
+    const products = await Product.findAll({
+      where: {
+        assigned: true,
+        assignedTo: req.params.dealerId,
+      }
     });
     res.json(products);
   } catch (err) {
@@ -42,12 +43,15 @@ router.get('/:dealerId/stock', async (req, res) => {
   }
 });
 
+// Get dealer invoices
 router.get('/:dealerId/invoices', async (req, res) => {
   try {
-    const invoices = await Invoice.find({ customer: req.params.dealerId }).populate('products');
+    const invoices = await Invoice.findAll({
+      where: { customerId: req.params.dealerId },
+      include: ['products'],
+    });
     res.json(invoices);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Failed to fetch invoices' });
   }
 });
@@ -55,74 +59,80 @@ router.get('/:dealerId/invoices', async (req, res) => {
 // Update dealer name
 router.put('/:id', async (req, res) => {
   try {
-    const dealer = await Dealer.findByIdAndUpdate(
-      req.params.id,
+    const [updated] = await Dealer.update(
       { name: req.body.name },
-      { new: true }
+      { where: { id: req.params.id } }
     );
-    res.json(dealer);
+    if (updated) {
+      const updatedDealer = await Dealer.findByPk(req.params.id);
+      res.json(updatedDealer);
+    } else {
+      res.status(404).json({ error: 'Dealer not found' });
+    }
   } catch (err) {
     res.status(500).json({ error: 'Failed to update dealer' });
   }
 });
 
-
 // Delete dealer
 router.delete('/:id', async (req, res) => {
   try {
-    await Dealer.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Dealer deleted' });
+    const deleted = await Dealer.destroy({ where: { id: req.params.id } });
+    if (deleted) {
+      res.json({ message: 'Dealer deleted' });
+    } else {
+      res.status(404).json({ error: 'Dealer not found' });
+    }
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete dealer' });
   }
 });
 
-
-// POST create sub-dealer under a dealer
+// Create sub-dealer
 router.post('/:dealerId/subdealers', async (req, res) => {
-  const { name } = req.body;
-  const { dealerId } = req.params;
-
   try {
-    const mainDealer = await Dealer.findById(dealerId);
+    const { name } = req.body;
+    const dealerId = req.params.dealerId;
+
+    const mainDealer = await Dealer.findByPk(dealerId);
     if (!mainDealer) return res.status(404).json({ message: 'Main dealer not found' });
 
-    const subDealer = new Dealer({
+    const subDealer = await Dealer.create({
       name,
       parentDealer: dealerId
     });
 
-    await subDealer.save();
     res.status(201).json(subDealer);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Failed to create sub-dealer' });
   }
 });
 
-
-// GET stock for a specific sub-dealer under a main dealer
+// Get stock for sub-dealer
 router.get('/:dealerId/subdealers/:subDealerId/stock', async (req, res) => {
   const { dealerId, subDealerId } = req.params;
-  console.log('DealerId:', dealerId);
-  console.log('SubDealerId:', subDealerId);
 
   try {
-    const subDealer = await Dealer.findOne({ _id: subDealerId, parentDealer: dealerId });
-    console.log('Subdealer result:', subDealer);
+    const subDealer = await Dealer.findOne({
+      where: {
+        id: subDealerId,
+        parentDealer: dealerId
+      }
+    });
+
     if (!subDealer) return res.status(404).json({ message: 'Sub-dealer not found or not under this dealer' });
 
-    const stock = await Product.find({ assignedTo: subDealerId });
+    const stock = await Product.findAll({ where: { assignedTo: subDealerId } });
     res.json(stock);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Failed to fetch sub-dealer stock' });
   }
 });
 
+// Count dealer stock
 router.get('/stock-count', async (req, res) => {
   try {
-    const total = await Product.countDocuments({ assignedToType: 'dealer' });
+    const total = await Product.count({ where: { assignedType: 'dealer' } });
     res.json({ total });
   } catch (err) {
     res.status(500).json({ message: 'Error fetching dealer stock count' });

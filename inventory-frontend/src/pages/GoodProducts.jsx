@@ -60,7 +60,7 @@ function GoodProducts() {
 
       // Step 2: Mark as 'good'
       await axios.post
-      (`${process.env.REACT_APP_BASE_URL}/api/products/test/${product._id}`, {
+      (`${process.env.REACT_APP_BASE_URL}/api/products/test/${product.id}`, {
       //(`http://localhost:5000/api/products/test/${product._id}`, {
         status: 'good'
       });
@@ -123,14 +123,14 @@ function GoodProducts() {
       <ul className="good-products-list">
         {activeTab === 'stockIn' &&
           stockInProducts.map((p) => (
-            <li key={p._id} className="good-product-item">
+            <li key={p.id} className="good-product-item">
               <span className="product-barcode">{p.barcode}</span>
             </li>
           ))}
 
         {activeTab === 'stockOut' && <StockOut />
           // stockOutProducts.map((p) => (
-          //   <li key={p._id} className="good-product-item">
+          //   <li key={p.id} className="good-product-item">
           //     <span className="product-barcode">{p.barcode}</span> →{' '}
           //     <span className="product-destination">{p.assignedTo}</span>
           //   </li>

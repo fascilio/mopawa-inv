@@ -20,7 +20,7 @@ function TestingQueue({ reloadTrigger }) {
     await api.post
     (`${process.env.REACT_APP_BASE_URL}/api/products/test/${id}`, { status });
     //(`http://localhost:5000/api/products/test/${id}`, { status });
-    setPendingProducts(pendingProducts.filter((p) => p._id !== id));
+    setPendingProducts(pendingProducts.filter((p) => p.id !== id));
   };
 
   const handleDelete = async (barcode) => {

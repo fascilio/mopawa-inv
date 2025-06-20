@@ -79,7 +79,7 @@ function AssignProducts() {
         <select value={destinationId} onChange={(e) => setDestinationId(e.target.value)}>
           <option value="">Select</option>
           {destinations.map((d) => (
-            <option key={d._id} value={d._id}>
+            <option key={d.id} value={d.id}>
               {d.name}
             </option>
           ))}

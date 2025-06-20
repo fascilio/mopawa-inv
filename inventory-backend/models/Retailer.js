@@ -1,19 +1,19 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
-const retailerSchema = new mongoose.Schema({
+const Retailer = sequelize.define('Retailer', {
   name: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   isTeamLeader: {
-    type: Boolean,
-    default: false
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
-  teamLeader: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Retailer',
-    default: null
-  }
+  teamLeaderId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
 });
 
-module.exports = mongoose.model('Retailer', retailerSchema);
+module.exports = Retailer;

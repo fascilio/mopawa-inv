@@ -120,7 +120,7 @@ export default function WarrantyPolicy() {
       <h1 className="text-2xl font-bold mb-4">Warranty Policy</h1>
 
       <section className="mb-6">
-        <h2 className="text-lg font-semibold">1. Warranty Period</h2>
+        <h2 style={{ color: 'black' }}>1. Warranty Period</h2>
         <p style={{ color: 'black' }}>
           This product is covered by a limited warranty of{" "}
           <strong>6 months</strong>, commencing from the date of successful
@@ -134,7 +134,7 @@ export default function WarrantyPolicy() {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-lg font-semibold">2. Warranty Coverage</h2>
+        <h2 style={{ color: 'black' }}>2. Warranty Coverage</h2>
         <p style={{ color: 'black' }}>
           During the warranty period, we will provide one (1) free replacement
           or repair service at our discretion, which may include:
@@ -152,7 +152,7 @@ export default function WarrantyPolicy() {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-lg font-semibold">3. Post-Service Warranty</h2>
+        <h2 style={{ color: 'black' }}>3. Post-Service Warranty</h2>
         <p style={{ color: 'black' }}>
           If a replacement or repair is provided under warranty, the original
           6-month warranty period will not be reset. The remaining warranty
@@ -162,7 +162,7 @@ export default function WarrantyPolicy() {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-lg font-semibold">
+        <h2 style={{ color: 'black' }}>
           4. Warranty Activation Requirements
         </h2>
         <ul className="list-disc list-inside pl-4">
@@ -187,7 +187,7 @@ export default function WarrantyPolicy() {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-lg font-semibold">5. Exclusions</h2>
+        <h2 style={{ color: 'black' }}>5. Exclusions</h2>
         <p style={{ color: 'black' }}>This warranty does not cover:</p>
         <ul className="list-disc list-inside pl-4">
           <li>
@@ -203,7 +203,7 @@ export default function WarrantyPolicy() {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-lg font-semibold">6. Claim Process</h2>
+        <h2 style={{ color: 'black' }}>6. Claim Process</h2>
         <ul className="list-disc list-inside pl-4">
           <li>
             Contact customer support via <strong>+254 708 999 666</strong> or
@@ -222,7 +222,7 @@ export default function WarrantyPolicy() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold">7. Limitation of Liability</h2>
+        <h2 style={{ color: 'black' }}>7. Limitation of Liability</h2>
         {/* <p>
           This warranty is limited to product replacement/repair. We are not
           liable for indirect damages (e.g., data loss, device incompatibility).

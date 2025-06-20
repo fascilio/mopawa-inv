@@ -67,7 +67,7 @@ function GiftStock() {
       <h3>Already Gifted</h3>
       <ul>
         {giftedProducts.map(p => (
-          <li key={p._id}>{p.barcode}</li>
+          <li key={p.id}>{p.barcode}</li>
         ))}
       </ul>
       <h3>Warranty Actions </h3>

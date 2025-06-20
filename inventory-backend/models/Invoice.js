@@ -1,24 +1,29 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
-const invoiceSchema = new mongoose.Schema({
-  invoiceNumber: String,
+const Invoice = sequelize.define('Invoice', {
+  invoiceNumber: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   customerType: {
-    type: String, 
-    enum: ['Dealer', 'Retailer', 'Sample', 'gift']
+    type: DataTypes.ENUM('Dealer', 'Retailer', 'Sample', 'gift'),
+    allowNull: true
   },
-  customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    refPath: 'customerType'
+  customerId: {
+    type: DataTypes.INTEGER, // Replace with foreign key if needed
+    allowNull: true
   },
-  products: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product'
-  }],
-  totalItems: Number,
+  totalItems: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   date: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
   }
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('Invoice', invoiceSchema);
+module.exports = Invoice;

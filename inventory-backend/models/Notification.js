@@ -1,11 +1,29 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
-const notificationSchema = new mongoose.Schema({
-  phoneNumber: { type: String, required: true },
-  serialNumber: { type: String, required: true },
-  type: { type: String, enum: ['warranty-registration', 'warranty-claim'], required: true },
-  message: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
+const Notification = sequelize.define('Notification', {
+  phoneNumber: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  serialNumber: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  type: {
+    type: DataTypes.ENUM('warranty-registration', 'warranty-claim'),
+    allowNull: false,
+  },
+  message: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  }
+}, {
+  timestamps: false // disables Sequelize's default createdAt/updatedAt
 });
 
-module.exports = mongoose.model('Notification', notificationSchema);
+module.exports = Notification;

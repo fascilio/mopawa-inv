@@ -21,7 +21,7 @@ function DealerStock() {
 
 
   const handleEditDealer = (dealer) => {
-    setEditingDealerId(dealer._id);
+    setEditingDealerId(dealer.id);
     setEditedName(dealer.name);
   };
   
@@ -33,7 +33,7 @@ function DealerStock() {
   const fetchDealerInvoices = async () => {
     try {
       const res = await axios.get
-      (`${process.env.REACT_APP_BASE_URL}/api/dealers/${selectedDealer._id}/invoices`);
+      (`${process.env.REACT_APP_BASE_URL}/api/dealers/${selectedDealer.id}/invoices`);
       //(`http://localhost:5000/api/dealers/${selectedDealer._id}/invoices`);
       setDealerInvoices(res.data);
       setShowInvoices(true);
@@ -65,8 +65,8 @@ function DealerStock() {
       await axios.delete
       (`${process.env.REACT_APP_BASE_URL}/api/dealers/${id}`);
       //(`http://localhost:5000/api/dealers/${id}`);
-      setDealers(dealers.filter(d => d._id !== id));
-      if (selectedDealer && selectedDealer._id === id) {
+      setDealers(dealers.filter(d => d.id !== id));
+      if (selectedDealer && selectedDealer.id === id) {
         setSelectedDealer(null);
         setDealerProducts([]);
       }
@@ -94,7 +94,7 @@ function DealerStock() {
 
     try {
       if (dealer.parentDealer) {
-        const subStockRes = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
+        const subStockRes = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers/${dealer.parentDealer}/subdealers/${dealer.id}/stock`);
         //(`http://localhost:5000/api/dealers/${dealer.parentDealer}/subdealers/${dealer._id}/stock`);
         setDealerProducts(subStockRes.data);
 
@@ -104,7 +104,7 @@ function DealerStock() {
         const available = parentStock.data.filter(p => !alreadyAssigned.includes(p.barcode));
         setAssignableProducts(available);
       } else {
-        const stockRes = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers/${dealer._id}/stock`);
+        const stockRes = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers/${dealer.id}/stock`);
         //(`http://localhost:5000/api/dealers/${dealer._id}/stock`);
         setDealerProducts(stockRes.data);
 
@@ -116,7 +116,7 @@ function DealerStock() {
 
         const subRes = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dealers`);
         //(`http://localhost:5000/api/dealers`);
-        const subs = subRes.data.filter(d => d.parentDealer === dealer._id);
+        const subs = subRes.data.filter(d => d.parentDealer === dealer.id);
         setSubDealers(subs);
       }
     } catch (err) {
@@ -134,7 +134,7 @@ function DealerStock() {
       //('http://localhost:5000/api/products/assign-bulk', {
         barcodes: selectedProducts,
         destinationType: 'Dealer',
-        destinationId: selectedDealer._id
+        destinationId: selectedDealer.id
       });
   
       setSelectedProducts([]);
@@ -156,7 +156,7 @@ function DealerStock() {
     if (!selectedDealer || !newDealerName) return;
   
     try {
-      const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/dealers/${selectedDealer._id}/subdealers`, {
+      const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/dealers/${selectedDealer.id}/subdealers`, {
       //(`http://localhost:5000/api/dealers/${selectedDealer._id}/subdealers`, {
         name: newDealerName
       });
@@ -242,7 +242,7 @@ function DealerStock() {
           {dealers
             .filter(d => !d.parentDealer && d.name.toLowerCase().includes(searchTerm.toLowerCase()))
             .map(dealer => (
-              <div key={dealer._id} className="dealer-item">
+              <div key={dealer.id} className="dealer-item">
                 <button onClick={() => loadDealerStock(dealer)}>{dealer.name}</button>
               </div>
           ))}
@@ -302,7 +302,7 @@ function DealerStock() {
                 {subDealers
                   .filter(sub => sub.name.toLowerCase().includes(searchTerm.toLowerCase()))
                   .map(sub => (
-                    <li key={sub._id}>
+                    <li key={sub.id}>
                       <button onClick={() => loadDealerStock(sub)}>{sub.name}</button>
                     </li>
                   ))}
@@ -316,7 +316,7 @@ function DealerStock() {
           ) : (
             <ul>
               {assignableProducts.map(p => (
-                <li key={p._id}>
+                <li key={p.id}>
                   <input
                     type="checkbox"
                     checked={selectedProducts.includes(p.barcode)}
@@ -338,7 +338,7 @@ function DealerStock() {
           <h4>Current Stock of {selectedDealer.name} Warehouse:</h4>
           <ul>
             {dealerProducts.map(p => (
-              <li key={p._id}>{p.barcode} got this stock on {new Date(p.createdAt).toLocaleString()}</li>
+              <li key={p.id}>{p.barcode} got this stock on {new Date(p.createdAt).toLocaleString()}</li>
             ))}
           </ul>
           <h3>Warranty Actions for {selectedDealer.name}</h3>
@@ -351,12 +351,12 @@ function DealerStock() {
               <h4>Invoices for {selectedDealer.name}</h4>
               <ul>
               {dealerInvoices.map(inv => (
-                <li key={inv._id}>
+                <li key={inv.id}>
                   Invoice #{inv.invoiceNumber} - {new Date(inv.createdAt).toLocaleDateString()} - 
                   {/* <a href={`http://localhost:5000/api/invoice/${inv._id}/view`} target="_blank" rel="noopener noreferrer">View PDF</a> |  */}
-                  <Link to={`/invoice/${inv._id}`} target="_blank" rel="noopener noreferrer">View </Link> or 
+                  <Link to={`/invoice/${inv.id}`} target="_blank" rel="noopener noreferrer">View </Link> or 
                   {/*<a href={`http://localhost:5000/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>*/} 
-                  <a href={`${process.env.REACT_APP_BASE_URL}/api/invoices/${inv._id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
+                  <a href={`${process.env.REACT_APP_BASE_URL}/api/invoices/${inv.id}/download`} target="_blank" rel="noopener noreferrer"> Download </a>
                 </li>
               ))}
               </ul>

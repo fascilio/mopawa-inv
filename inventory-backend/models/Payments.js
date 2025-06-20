@@ -1,12 +1,34 @@
-const mongoose = require("mongoose");
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
-const paymentSchema = new mongoose.Schema({
-  mpesaReceiptNumber: { type: String, required: true, unique: true },
-  phoneNumber: { type: String, required: true },
-  amount: { type: Number, required: true },
-  transactionDate: { type: Date, required: true },
-  accountReference: {type:String, required: true },
-  createdAt: { type: Date, default: Date.now },
+const Payment = sequelize.define('Payment', {
+  mpesaReceiptNumber: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  phoneNumber: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  amount: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
+  transactionDate: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  accountReference: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  }
+}, {
+  timestamps: false
 });
 
-module.exports = mongoose.model("Payment", paymentSchema);
+module.exports = Payment;

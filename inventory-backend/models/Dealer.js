@@ -1,15 +1,17 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
-const dealerSchema = new mongoose.Schema({
+const Dealer = sequelize.define('Dealer', {
   name: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
-  parentDealer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Dealer',
-    default: null
+  parentDealerId: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('Dealer', dealerSchema);
+module.exports = Dealer;

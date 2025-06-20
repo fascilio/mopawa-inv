@@ -369,20 +369,22 @@ function Warranty() {
 
   // Inline styles
   const buttonStyle = {
-    backgroundColor: '#facc15', // Tailwind's yellow-400
+    width: '180px',
+    padding: '12px 20px',
+    fontSize: '16px',
     color: 'white',
-    padding: '12px 24px',
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '16px',
-    transition: 'background-color 0.3s',
-    marginBottom: '10px',
+    transition: 'background-color 0.3s ease',
+    marginRight: '10px'
   };
 
-  const buttonHoverStyle = {
-    backgroundColor: '#eab308', // Tailwind's yellow-500 (darker)
-  };
+  // const buttonHoverStyle = {
+  //   backgroundColor: '#eab308', // Tailwind's yellow-500 (darker)
+  // };
+  const registerHoverStyle = { backgroundColor: '#15803d' }; // green-700
+  const claimHoverStyle = { backgroundColor: '#eab308' }; 
 
   return (
     <div>
@@ -420,12 +422,12 @@ function Warranty() {
             zIndex: 20,
           }}
         >
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+          {/* <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
             Warranty Services
           </h1>
           <p style={{ color: 'black' }}>
             Mopawa - Best Power Bank Manufacturer
-          </p>
+          </p> */}
         </div>
       </div>
 
@@ -434,7 +436,7 @@ function Warranty() {
       </div>
 
       <div style={{ padding: '40px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-        <button
+        {/* <button
           style={buttonStyle}
           onMouseOver={e => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
           onMouseOut={e => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
@@ -449,7 +451,24 @@ function Warranty() {
           onClick={() => navigate('/warranty-policy/claim')}
         >
           Claim Warranty
-        </button>
+        </button> */}
+        <button
+      style={{ ...buttonStyle, backgroundColor: '#22c55e' }} // green-500
+      onMouseOver={e => e.currentTarget.style.backgroundColor = registerHoverStyle.backgroundColor}
+      onMouseOut={e => e.currentTarget.style.backgroundColor = '#22c55e'}
+      onClick={() => navigate('/warranty-policy/register')}
+    >
+      Register Warranty
+    </button>
+
+    <button
+      style={{ ...buttonStyle, backgroundColor: '#facc15' }} // yellow-400
+      onMouseOver={e => e.currentTarget.style.backgroundColor = claimHoverStyle.backgroundColor}
+      onMouseOut={e => e.currentTarget.style.backgroundColor = '#facc15'}
+      onClick={() => navigate('/warranty-policy/claim')}
+    >
+      Claim Warranty
+    </button>
       </div>
     </div>
   );

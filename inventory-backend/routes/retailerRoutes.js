@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const router = express.Router();
+const { Op } = require('sequelize');
 const Retailer = require('../models/Retailer');
 const Product = require('../models/Product');
-const Invoice = require('../models/Invoice'); 
-const router = express.Router();
+const Invoice = require('../models/Invoice');
 
 router.post('/create', async (req, res) => {
   try {
@@ -15,13 +15,16 @@ router.post('/create', async (req, res) => {
   }
 });
 
-
 router.get('/', async (req, res) => {
   try {
-    const leaders = await Retailer.find({ $or: [
-      { isTeamLeader: true },
-      { teamLeader: null }
-    ]});
+    const leaders = await Retailer.findAll({
+      where: {
+        [Op.or]: [
+          { isTeamLeader: true },
+          { teamLeaderId: null }
+        ]
+      }
+    });
     res.json(leaders);
   } catch (err) {
     console.error(err);
@@ -29,18 +32,19 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 router.get('/:id/stock', async (req, res) => {
-  const retailer = await Retailer.findById(req.params.id);
-  if (!retailer) return res.status(404).json({ error: 'Retailer not found' });
-
-  const ownerId = retailer.teamLeader ? retailer.teamLeader._id || retailer.teamLeader : retailer._id;
-
   try {
-    const products = await Product.find({
-      assigned: true,
-      'assignment.type': 'Retailer',
-      'assignment.id': new mongoose.Types.ObjectId(ownerId)
+    const retailer = await Retailer.findByPk(req.params.id);
+    if (!retailer) return res.status(404).json({ error: 'Retailer not found' });
+
+    const ownerId = retailer.teamLeaderId || retailer.id;
+
+    const products = await Product.findAll({
+      where: {
+        assigned: true,
+        assignmentType: 'Retailer',
+        assignmentId: ownerId
+      }
     });
     res.json(products);
   } catch (err) {
@@ -52,7 +56,13 @@ router.get('/:id/stock', async (req, res) => {
 router.get('/:id/invoices', async (req, res) => {
   try {
     const retailerId = req.params.id;
-    const invoices = await Invoice.find({ clientId: retailerId, clientType: 'Retailer' }).sort({ createdAt: -1 });
+    const invoices = await Invoice.findAll({
+      where: {
+        customerType: 'Retailer',
+        customerId: retailerId
+      },
+      order: [['createdAt', 'DESC']]
+    });
     res.json(invoices);
   } catch (err) {
     console.error(err);
@@ -62,14 +72,14 @@ router.get('/:id/invoices', async (req, res) => {
 
 router.post('/:id/team-member', async (req, res) => {
   try {
-    const leader = await Retailer.findById(req.params.id); 
+    const leader = await Retailer.findByPk(req.params.id);
     if (!leader || !leader.isTeamLeader) {
       return res.status(400).json({ error: 'Invalid team leader' });
     }
 
     const newMember = await Retailer.create({
       name: req.body.name,
-      teamLeader: leader._id,
+      teamLeaderId: leader.id,
       isTeamLeader: false
     });
 
@@ -82,8 +92,9 @@ router.post('/:id/team-member', async (req, res) => {
 
 router.get('/:id/team-members', async (req, res) => {
   try {
-    const teamLeaderId = new mongoose.Types.ObjectId(req.params.id);
-    const teamMembers = await Retailer.find({ teamLeader: teamLeaderId });
+    const teamMembers = await Retailer.findAll({
+      where: { teamLeaderId: req.params.id }
+    });
     res.json(teamMembers);
   } catch (err) {
     console.error(err);
@@ -91,10 +102,9 @@ router.get('/:id/team-members', async (req, res) => {
   }
 });
 
-// DELETE a retailer or team member
 router.delete('/:id', async (req, res) => {
   try {
-    const deletedRetailer = await Retailer.findByIdAndDelete(req.params.id);
+    const deletedRetailer = await Retailer.destroy({ where: { id: req.params.id } });
     if (!deletedRetailer) {
       return res.status(404).json({ message: 'Retailer not found' });
     }
@@ -105,17 +115,17 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Update retailer by ID
 router.put('/:id', async (req, res) => {
   try {
-    const updatedRetailer = await Retailer.findByIdAndUpdate(
-      req.params.id,
-      req.body,  
-      { new: true, runValidators: true }
-    );
-    if (!updatedRetailer) {
+    const [updated] = await Retailer.update(req.body, {
+      where: { id: req.params.id }
+    });
+
+    if (!updated) {
       return res.status(404).json({ message: 'Retailer not found' });
     }
+
+    const updatedRetailer = await Retailer.findByPk(req.params.id);
     res.json(updatedRetailer);
   } catch (err) {
     console.error(err);
@@ -123,14 +133,15 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
-  router.get('/stock-count', async (req, res) => {
-    try {
-      const total = await Product.countDocuments({ assignedToType: 'retailer' });
-      res.json({ total });
-    } catch (err) {
-      res.status(500).json({ message: 'Error fetching retailer stock count' });
-    }
-  });
+router.get('/stock-count', async (req, res) => {
+  try {
+    const total = await Product.count({
+      where: { assignedType: 'Retailer' }
+    });
+    res.json({ total });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching retailer stock count' });
+  }
+});
 
 module.exports = router;
