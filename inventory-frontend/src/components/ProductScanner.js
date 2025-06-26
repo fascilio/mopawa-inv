@@ -29,7 +29,7 @@ function TestingStation() {
       setTimeout(() => {
         setScanStatus(null);
         setScanMessage('');
-      }, 2000);
+      }, 5000);
     }
   };
   

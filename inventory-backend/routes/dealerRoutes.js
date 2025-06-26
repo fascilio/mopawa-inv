@@ -1,8 +1,19 @@
 const express = require('express');
+const multer = require('multer');
 const router = express.Router();
 const Dealer = require('../models/Dealer');
 const Product = require('../models/Product');
 const Invoice = require('../models/Invoice');
+const ReturnedProduct = require('../models/ReturnedProduct');
+
+
+const storage = multer.diskStorage({
+  destination: 'uploads/returns/',
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+const upload = multer({ storage });
 
 // Get all dealers
 router.get('/', async (req, res) => {
@@ -47,12 +58,30 @@ router.get('/:dealerId/stock', async (req, res) => {
 router.get('/:dealerId/invoices', async (req, res) => {
   try {
     const invoices = await Invoice.findAll({
-      where: { customerId: req.params.dealerId },
-      include: ['products'],
+      where: {
+        customerId: req.params.dealerId,
+        customerType: 'Dealer',
+      },
+      order: [['createdAt', 'DESC']]
     });
+
     res.json(invoices);
   } catch (err) {
+    console.error("Error fetching dealer invoices:", err);
     res.status(500).json({ error: 'Failed to fetch invoices' });
+  }
+});
+
+// Get a single dealer by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const dealer = await Dealer.findByPk(req.params.id); 
+    if (!dealer) {
+      return res.status(404).json({ message: 'Dealer not found' });
+    }
+    res.json(dealer);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch dealer' });
   }
 });
 
@@ -88,7 +117,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Create sub-dealer
+// POST /:dealerId/subdealers
 router.post('/:dealerId/subdealers', async (req, res) => {
   try {
     const { name } = req.body;
@@ -99,14 +128,30 @@ router.post('/:dealerId/subdealers', async (req, res) => {
 
     const subDealer = await Dealer.create({
       name,
-      parentDealer: dealerId
+      parentDealerId: dealerId  
     });
 
     res.status(201).json(subDealer);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Failed to create sub-dealer' });
   }
 });
+
+// GET sub-dealers for a main dealer
+router.get('/:dealerId/subdealers', async (req, res) => {
+  try {
+    const dealerId = req.params.dealerId;
+    const subDealers = await Dealer.findAll({
+      where: { parentDealerId: dealerId }
+    });
+    res.json(subDealers);
+  } catch (err) {
+    console.error('Error fetching sub-dealers:', err);
+    res.status(500).json({ message: 'Failed to fetch sub-dealers' });
+  }
+});
+
 
 // Get stock for sub-dealer
 router.get('/:dealerId/subdealers/:subDealerId/stock', async (req, res) => {
@@ -116,7 +161,7 @@ router.get('/:dealerId/subdealers/:subDealerId/stock', async (req, res) => {
     const subDealer = await Dealer.findOne({
       where: {
         id: subDealerId,
-        parentDealer: dealerId
+        parentDealerId: dealerId
       }
     });
 
@@ -138,5 +183,33 @@ router.get('/stock-count', async (req, res) => {
     res.status(500).json({ message: 'Error fetching dealer stock count' });
   }
 });
+
+
+
+// Return product with photo and reason
+router.post('/:dealerId/returns', upload.single('photo'), async (req, res) => {
+  try {
+    const { barcode, reason } = req.body;
+    const { dealerId } = req.params;
+    const imageUrl = req.file ? `/uploads/returns/${req.file.filename}` : null;
+
+    const returned = await ReturnedProduct.create({ dealerId, barcode, reason, imageUrl });
+    res.status(201).json(returned);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to return product' });
+  }
+});
+
+//Get returns
+router.get('/:dealerId/returns', async (req, res) => {
+  try {
+    const returns = await ReturnedProduct.findAll({ where: { dealerId: req.params.dealerId } });
+    res.json(returns);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch returns' });
+  }
+});
+
 
 module.exports = router;

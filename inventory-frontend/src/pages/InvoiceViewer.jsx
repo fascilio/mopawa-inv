@@ -10,7 +10,7 @@ function InvoiceViewer() {
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/invoice${invoiceId}`);
+        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/invoice/${invoiceId}`);
         //(`http://localhost:5000/api/invoice/${invoiceId}`);
         setInvoice(res.data);
       } catch (err) {

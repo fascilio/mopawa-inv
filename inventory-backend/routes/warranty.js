@@ -39,40 +39,61 @@ async function sendSMS(phone, message) {
 router.post("/register", async (req, res) => {
   const { phone_number, serial_number } = req.body;
 
-  const exists = registrations.find(
-    (r) => r.phone_number === phone_number && r.serial_number === serial_number
-  );
-  if (exists) {
-    return res.status(400).json({ message: "Already registered." });
-  }
-
-  registrations.push({
-    id: registrations.length + 1,
-    phone_number,
-    serial_number,
-    registeredAt: new Date(),
-    warrantyStatus: "active",
-    claimed: false
-  });
-
-  await sendSMS(
-    phone_number,
-    "Thank you. You have successfully registered your new power bank."
-  );
-
   try {
+    // 1. Check if product with the given barcode exists
+    const product = await Product.findOne({ where: { barcode: serial_number } });
+    if (!product) {
+      return res.status(400).json({ message: "Invalid, Product not found." });
+    }
+
+    // 2. Check how many warranties this number has registered already
+    const phoneWarranties = await Warranty.count({ where: { clientId: phone_number } });
+    if (phoneWarranties >= 2) {
+      return res.status(400).json({ message: "Out of limit with this number, please try another phone number to register your warranty." });
+    }
+
+    // 3. Prevent duplicate registration for same barcode
+    const alreadyRegistered = await Warranty.findOne({ where: { barcode: serial_number } });
+    if (alreadyRegistered) {
+      return res.status(400).json({ message: "Already registered." });
+    }
+
+    // 4. Save to Warranty table
+    const sixMonthsFromNow = new Date();
+    sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+
+    await Warranty.create({
+      barcode: serial_number,
+      clientType: product.assignedType || "Dealer", // fallback
+      clientId: product.assignmentId || phone_number,
+      registeredAt: new Date(),
+      expiresAt: sixMonthsFromNow,
+      claimed: false
+    });
+
+    // 5. Send SMS
+    await sendSMS(
+      phone_number,
+      `You have successfully registered your new power bank.\nProduct: ${serial_number}\nThank you for choosing Mopawa.`
+    );
+
+    // 6. Save Notification
     await Notification.create({
       phoneNumber: phone_number,
       serialNumber: serial_number,
       message: `New warranty registration by ${phone_number} for product ${serial_number}`,
-      type: 'warranty-registration'
+      type: "warranty-registration",
     });
-  } catch (err) {
-    console.error("Failed to save registration notification:", err);
-  }
 
-  return res.status(200).json({ message: "Registered successfully." });
+    return res.status(200).json({ message: `Registered successfully for ${serial_number}` });
+
+  } catch (err) {
+    console.error("Warranty registration error:", err);
+    return res.status(500).json({ message: "Server error. Please try again." });
+  }
 });
+
+
 
 router.post("/claimWarranty", async (req, res) => {
   const { phoneNumber, serialNumber } = req.body;

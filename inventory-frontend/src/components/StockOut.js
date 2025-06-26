@@ -33,7 +33,7 @@ function StockOutPage() {
     //(`http://localhost:5000${endpoint}`)
       .then(res => {
         const filtered = type === 'Dealer'
-          ? res.data.filter(d => !d.parentDealer)
+          ? res.data.filter(d => !d.parentDealerId)
           : res.data;
         setClients(filtered);
       })
@@ -142,7 +142,7 @@ function StockOutPage() {
                 ))}
               </ul>
 
-              <button onClick={handleDone}>Done & Generate Invoice</button>
+              <button onClick={handleDone}>Done </button>
             </>
           )}
         </div>

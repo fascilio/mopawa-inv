@@ -4,6 +4,24 @@ const { Op } = require('sequelize');
 const Product = require('../models/Product');
 const Invoice = require('../models/Invoice');
 
+// router.post('/receive', async (req, res) => {
+//   console.log('Received barcode:', req.body);
+//   const { barcode } = req.body;
+
+//   try {
+//     const existingProduct = await Product.findOne({ where: { barcode } });
+//     if (existingProduct) {
+//       return res.status(400).json({ message: 'Product already scanned' });
+//     }
+
+//     const newProduct = await Product.create({ barcode });
+//     res.status(201).json({ message: 'Product registered successfully' });
+//   } catch (err) {
+//     console.error('Error saving product:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+
 router.post('/receive', async (req, res) => {
   console.log('Received barcode:', req.body);
   const { barcode } = req.body;
@@ -15,7 +33,11 @@ router.post('/receive', async (req, res) => {
     }
 
     const newProduct = await Product.create({ barcode });
-    res.status(201).json({ message: 'Product registered successfully' });
+
+    // ✅ Include barcode in response message
+    res.status(201).json({ 
+      message: `Product scanned successfully. Barcode: ${newProduct.barcode}` 
+    });
   } catch (err) {
     console.error('Error saving product:', err);
     res.status(500).json({ message: 'Server error' });
@@ -392,6 +414,33 @@ router.get('/gifts', async (req, res) => {
     console.error('Error fetching gifted products:', err);
     res.status(500).json({ error: 'Failed to fetch gifted products' });
   }
+});
+
+router.get('/find/:barcode', async (req, res) => {
+  const { barcode } = req.params;
+  const product = await Product.findOne({ where: { barcode } });
+
+  if (!product) {
+    return res.status(404).json({ message: 'Product not found' });
+  }
+
+  let location = 'Import Warehouse';
+
+  if (product.status === 'bad') {
+    location = 'Spare Parts Warehouse';
+  } else if (product.status === 'good' && !product.assigned) {
+    location = 'Finished Warehouse';
+  } else if (product.assignedType === 'Dealer') {
+    location = 'Dealers Warehouse';
+  } else if (product.assignedType === 'Retailer') {
+    location = 'Direct Sales Warehouse';
+  } else if (product.assignedType === 'Sample') {
+    location = 'Samples Warehouse';
+  } else if (product.assignedType === 'Gift') {
+    location = 'Gifts Warehouse';
+  }
+
+  return res.json({ location });
 });
 
 

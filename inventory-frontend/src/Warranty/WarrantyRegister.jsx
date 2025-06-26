@@ -1,105 +1,3 @@
-// import { useState } from "react";
-// import axios from "axios";
-// import { useNavigate } from "react-router-dom"; 
-
-// function WarrantyRegister() {
-//   const [phoneNumber, setPhoneNumber] = useState("");
-//   const [serialNumber, setSerialNumber] = useState("");
-//   const [errorMessage, setErrorMessage] = useState("");
-//   const [successMessage, setSuccessMessage] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const navigate = useNavigate();
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setSuccessMessage("");
-//     setErrorMessage("");
-//     setLoading(true);
-
-//     try {
-//       const response = await axios.post(
-//         `${process.env.REACT_APP_BASE_URL}/api/warranty/register`,
-//         {
-//           phone_number: phoneNumber,
-//           serial_number: serialNumber,
-//         }
-//       );
-//       setSuccessMessage("Warranty registered successfully!");
-//       setPhoneNumber("");
-//       setSerialNumber("");
-//     } catch (error) {
-//       setErrorMessage(error.response?.data?.message || "An error occurred.");
-//     } finally {
-//       setLoading(false);
-//       setTimeout(() => {
-//         setErrorMessage("");
-//         setSuccessMessage("");
-//       }, 3000);
-//     }
-//   };
-
-//   return (
-//     <div className="flex flex-col items-center p-6">
-//         <button
-//         onClick={() => navigate(-1)}
-//         className="self-start text-sm text-blue-500 underline mb-2"
-//       >
-//         ← Back
-//       </button>
-//       <h2 className="font-bold text-2xl my-2">Register Warranty</h2>
-//       <p style={{ color: 'black' }}>Please note that warranty details cannot be changed once registered</p>
-
-//       {errorMessage && <p className="text-red-600">{errorMessage}</p>}
-//       {successMessage && <p className="text-green-600">{successMessage}</p>}
-
-//       <form onSubmit={handleSubmit} className="flex flex-col">
-//         <div className="p-5">
-//           <label htmlFor="serialNumber" className="mr-10">Serial Number:</label>
-//           <input
-//             className="rounded-md font-sans"
-//             type="text"
-//             id="serialNumber"
-//             value={serialNumber}
-//             onChange={(e) => setSerialNumber(e.target.value)}
-//             required
-//           />
-//         </div>
-
-//         <div className="p-5">
-//           <label htmlFor="phoneNumber" className="mr-10">Phone Number:</label>
-//           <input
-//             className="rounded-md font-sans"
-//             placeholder="2547XXXXXXXX"
-//             type="text"
-//             id="phoneNumber"
-//             value={phoneNumber}
-//             onChange={(e) => setPhoneNumber(e.target.value)}
-//             required
-//           />
-//         </div>
-
-//         <button
-//           type="submit"
-//           disabled={loading}
-//           className="text-white bg-yellow-400 px-3 py-2 rounded-md mt-3"
-//         >
-//           {loading ? "Registering..." : "Register Warranty"}
-//         </button>
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default WarrantyRegister;
-
-
-
-
-
-
-
-
-
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -109,6 +7,7 @@ function WarrantyRegister() {
   const [serialNumber, setSerialNumber] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccessBox, setShowSuccessBox] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -116,6 +15,7 @@ function WarrantyRegister() {
     e.preventDefault();
     setSuccessMessage("");
     setErrorMessage("");
+    setShowSuccessBox(false);
     setLoading(true);
 
     try {
@@ -129,6 +29,10 @@ function WarrantyRegister() {
       setSuccessMessage("Warranty registered successfully!");
       setPhoneNumber("");
       setSerialNumber("");
+      setShowSuccessBox(true);
+      setTimeout(() => {
+        setShowSuccessBox(false);
+      }, 3000);
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "An error occurred.");
     } finally {
@@ -141,7 +45,7 @@ function WarrantyRegister() {
   };
 
   const buttonStyle = {
-    backgroundColor: '#facc15', // yellow-400
+    backgroundColor: '#facc15',
     color: 'white',
     padding: '10px 20px',
     borderRadius: '6px',
@@ -153,7 +57,7 @@ function WarrantyRegister() {
 
   const backStyle = {
     alignSelf: 'flex-start',
-    color: '#3b82f6', // blue-500
+    color: '#3b82f6',
     textDecoration: 'underline',
     fontSize: '14px',
     marginBottom: '10px',
@@ -198,8 +102,31 @@ function WarrantyRegister() {
         Please note that warranty details cannot be changed once registered
       </p>
 
+      {showSuccessBox && (
+        <div style={{
+          backgroundColor: 'white',
+          border: '2px solid #16a34a',
+          color: '#16a34a',
+          padding: '30px',
+          borderRadius: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '30px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+          maxWidth: '400px',
+          width: '100%',
+        }}>
+          <div style={{ fontSize: '64px', fontWeight: 'bold' }}>✅</div>
+          <h3 style={{ margin: 0 }}>Success!</h3>
+          <p style={{ textAlign: 'center', margin: 0 }}>
+            You have successfully registered your product.
+          </p>
+        </div>
+      )}
+
       {errorMessage && <p style={{ color: 'red', marginBottom: '10px' }}>{errorMessage}</p>}
-      {successMessage && <p style={{ color: 'green', marginBottom: '10px' }}>{successMessage}</p>}
 
       <form onSubmit={handleSubmit} style={formStyle}>
         <div style={fieldContainerStyle}>

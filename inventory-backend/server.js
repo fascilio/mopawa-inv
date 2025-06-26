@@ -124,7 +124,8 @@ const mpesaRoutes = require('./routes/mpesaRoutes');
 
 const allowedOrigins = [
   'https://visitors.mopawa.co.ke',
-  'https://mopawa.co.ke'
+  'https://mopawa.co.ke',
+  'https://www.mopawa.co.ke'
 ];
 
 app.use(cors({
@@ -159,6 +160,8 @@ app.use('/api/retailers', retailerRoutes);
 app.use('/api/invoice', invoiceRoutes);
 app.use('/api/warranty', warrantyRoutes);
 app.use('/api/mpesa', mpesaRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Server
 app.listen(5000, '0.0.0.0', () => {

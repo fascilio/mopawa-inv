@@ -2,18 +2,20 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 function MpesaForm() {
-  const [phone, setPhone] = useState("254");
-  const [amount, setAmount] = useState("");
+  const [phone, setPhone] = useState("");
+  const [amount, setAmount] = useState("1");
   const [message, setMessage] = useState("");
   const [agentAccount, setAgentAccount] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false); 
+  const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState("⏳ Waiting...");
+  const [phoneError, setPhoneError] = useState("");
 
   const payNow = async () => {
-    setIsProcessing(true); 
+    if (phoneError || !phone) return;
+
+    setIsProcessing(true);
     try {
       await axios.post(`${process.env.REACT_APP_BASE_URL}/api/mpesa/stkpush`, {
-      //("http://localhost:5000/api/mpesa/stkpush", {
         phone,
         amount,
         accountReference: agentAccount,
@@ -22,15 +24,12 @@ function MpesaForm() {
     } catch (err) {
       setMessage("Payment failed.");
       console.error(err);
-    } finally {
-      // Keep overlay until user closes it manually
     }
   };
 
   const pollPaymentStatus = async () => {
     try {
       const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/mpesa/status?account=${agentAccount}`);
-      //(`http://localhost:5000/api/mpesa/status?account=${agentAccount}`);
       if (res.data.status === "Success") {
         setStatus("✅ Payment Completed");
         setIsProcessing(false);
@@ -47,28 +46,38 @@ function MpesaForm() {
       console.error(err);
     }
   };
-  
+
   useEffect(() => {
     let interval;
     if (isProcessing) {
-      interval = setInterval(pollPaymentStatus, 3000); 
+      interval = setInterval(pollPaymentStatus, 3000);
     }
     return () => clearInterval(interval);
   }, [isProcessing]);
-  
+
   const handlePhoneChange = (e) => {
-    const input = e.target.value.replace(/\D/g, "");
-    if (input.startsWith("254")) {
-      setPhone(input.slice(0, 12));
+    const raw = e.target.value.replace(/\D/g, ""); 
+    let formatted = raw;
+
+    
+    if (raw.startsWith("254") && raw.length <= 12) {
+      formatted = raw;
+      setPhoneError(raw.length === 12 ? "" : "Invalid format. Check the number and try again.");
+    } else if (raw.startsWith("07") && raw.length <= 10) {
+      formatted = "254" + raw.slice(1);
+      setPhoneError(raw.length === 10 ? "" : "Invalid format. Check the number and try again.");
     } else {
-      setPhone("254" + input.slice(0, 9));
+      setPhoneError("Invalid format.");
     }
+
+    setPhone(formatted);
   };
 
   return (
     <div style={{ position: "relative" }}>
       <fieldset disabled={isProcessing} style={{ opacity: isProcessing ? 0.5 : 1 }}>
         <h2>M-Pesa Payment</h2>
+
         <label>
           Phone number
           <input
@@ -77,6 +86,7 @@ function MpesaForm() {
             maxLength={12}
             onChange={handlePhoneChange}
           />
+          {phoneError && <p style={{ color: "red", margin: "5px 0 0" }}>{phoneError}</p>}
         </label>
 
         <label>
@@ -93,6 +103,7 @@ function MpesaForm() {
           <input
             type="number"
             placeholder="Amount"
+            min="1"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
@@ -107,17 +118,18 @@ function MpesaForm() {
           <button
             onClick={() => {
               setIsProcessing(false);
-              setPhone("254");
-              setAmount("");
+              setPhone("");
+              setAmount("1");
               setAgentAccount("");
               setMessage("");
+              setStatus("⏳ Waiting...");
             }}
             style={closeButtonStyle}
           >
             X
           </button>
           <div style={{ textAlign: "center", marginTop: "100px" }}>
-          <h2>{status}</h2>
+            <h2>{status}</h2>
             <p>Please wait for the STK push prompt on your phone.</p>
           </div>
         </div>
@@ -127,17 +139,15 @@ function MpesaForm() {
 }
 
 const overlayStyle = {
-  // position: "fixed",
   top: 0,
-   left: 0,
-   height: "100vh",
-   width: "80vw",
-   backgroundColor: "rgba(0,0,0,0.7)",
-   color: "#fff",
+  left: 0,
+  height: "100vh",
+  width: "80vw",
+  backgroundColor: "rgba(0,0,0,0.7)",
+  color: "#fff",
   zIndex: 9999,
   display: "flex",
   flexDirection: "column",
-  // alignItems: "flex-end",
   padding: "20px",
 };
 
@@ -156,6 +166,5 @@ const closeButtonStyle = {
   top: "20px",
   right: "20px",
 };
-
 
 export default MpesaForm;

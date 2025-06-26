@@ -17,6 +17,7 @@ import WarrantyClaim from './Warranty/WarrantyClaim';
 import Notifications from './components/Notifications';
 import AdminPayments from './components/AdminPayments';
 import MpesaForm from './components/MpesaForm';
+import DealerOverviewPage from './components/DealerOverviewPage';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="notifications" element={<Notifications />} />
         <Route path="payments" element={<AdminPayments />} />
         <Route path="stk-push" element={<MpesaForm />} />
+        <Route path="/dealer-overview/:id" element={<DealerOverviewPage />} />
       </Route>
     </Routes>
   </Router>
